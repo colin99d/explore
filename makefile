@@ -10,7 +10,7 @@ BIN=bin
 OBJ=$(BIN)/obj
 
 # Files
-SOURCE_FILES= $(SRC)/main.c $(SRC)/_window.c $(SRC)/_menu.c $(SRC)/_helpers.c
+SOURCE_FILES= $(SRC)/main.c
 EXECUTABLE_FILES = $(EXECUTABLE_NAME:%=$(BIN)/%)
 OBJECT_FILES     = $(SOURCE_FILES:%.c=$(OBJ)/%.o)
 #     http://www.gnu.org/software/make/manual/make.html#Substitution-Refs
@@ -24,7 +24,7 @@ clean:
 .PHONY: build clean
 
 $(EXECUTABLE_FILES): $(OBJECT_FILES)
-		@$(CC) $(LDFLAGS) -I/opt/homebrew/opt/ncurses/include -L/opt/homebrew/opt/ncurses/lib -o $@ $^ -lmenu -lncurses -g
+		@$(CC) $(LDFLAGS) -o $@ $^ -lSDL2 -lSDL2_image
 		@# ^^^ http://www.gnu.org/software/make/manual/make.html#Automatic-Variables
 
 # http://www.gnu.org/software/make/manual/make.html#Static-Pattern
