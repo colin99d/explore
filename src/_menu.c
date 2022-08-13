@@ -57,14 +57,13 @@ void discovery_menu(Player *user, int width, char *string, char *selection) {
   mvwaddch(my_menu_win, 4, 0, ACS_LTEE);
   mvwhline(my_menu_win, 4, 1, ACS_HLINE, 38);
   mvwaddch(my_menu_win, 4, 39, ACS_RTEE);
-  mvprintw(LINES - 2, 0, "F1 to exit");
   refresh();
 
   /* Post the menu */
   post_menu(my_menu);
   wrefresh(my_menu_win);
 
-  while ((c = wgetch(my_menu_win)) != KEY_F(1)) {
+  while ((c = wgetch(my_menu_win))) {
     switch (c) {
       case KEY_DOWN:
         menu_driver(my_menu, REQ_DOWN_ITEM);

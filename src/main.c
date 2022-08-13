@@ -1,5 +1,6 @@
 #include <ncurses.h>
 #include <stdlib.h>
+#include <time.h>
 
 #include "_menu.h"
 #include "_window.h"
@@ -8,12 +9,16 @@
 
 void move_user(Player *user, Location locations[HEIGHT][WIDTH], int y, int x) {
   char *selection = malloc(sizeof(char) * MAX_LEN + 1);
+  int new_location;
   int newy = user->y + y;
   int newx = user->x + x;
   if ((newy < HEIGHT - 2 && newy >= 0 && y != 0) ||
       (newx < WIDTH - 2 && newx >= 0 && x != 0)) {
-    int new_location = get_location();
-    locations[newy][newx] = new_location;
+    new_location = locations[newy][newx];
+    if (new_location == 0) {
+      new_location = get_location();
+      locations[newy][newx] = new_location;
+    }
     if (new_location == 2) {
       discovery_menu(user, 40, "home", selection);
     } else if (new_location == 3) {
@@ -34,10 +39,12 @@ int main(int argc, char *argv[]) {
   locations[0][0] = 1;
   create_user(&user);
 
+  srand(time(NULL));
   initscr();
   start_color();
   generate_color();
   curs_set(0);
+  noecho();
   cbreak();
   keypad(stdscr, TRUE);
 
