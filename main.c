@@ -1,79 +1,103 @@
 #include <ncurses.h>
 
+#define HEIGHT 30
+#define WIDTH 60
 
-WINDOW *create_newwin(int height, int width, int starty, int startx)
-{	WINDOW *local_win;
+typedef struct {
+  int x;
+  int y;
+} Player;
 
-	local_win = newwin(height, width, starty, startx);
-	box(local_win, 0 , 0);		/* 0, 0 gives default characters 
-					 * for the vertical and horizontal
-					 * lines			*/
-	wrefresh(local_win);		/* Show that box 		*/
+WINDOW *create_newwin(Player *user) {
+  WINDOW *local_win;
 
-	return local_win;
+  int starty = (LINES - HEIGHT) / 2; /* Calculating for a center placement */
+  int startx = (COLS - WIDTH) / 2;   /* of the window		*/
+  local_win = newwin(HEIGHT, WIDTH, starty, startx);
+  box(local_win, 0, 0);
+  // The below draws the player
+  mvaddch(starty + 1 + user->y, startx + 1 + user->x, 'A');
+  wrefresh(local_win);
+
+  return local_win;
 }
 
-void destroy_win(WINDOW *local_win)
-{	
-	/* box(local_win, ' ', ' '); : This won't produce the desired
-	 * result of erasing the window. It will leave it's four corners 
-	 * and so an ugly remnant of window. 
-	 */
-	wborder(local_win, ' ', ' ', ' ',' ',' ',' ',' ',' ');
-	/* The parameters taken are 
-	 * 1. win: the window on which to operate
-	 * 2. ls: character to be used for the left side of the window 
-	 * 3. rs: character to be used for the right side of the window 
-	 * 4. ts: character to be used for the top side of the window 
-	 * 5. bs: character to be used for the bottom side of the window 
-	 * 6. tl: character to be used for the top left corner of the window 
-	 * 7. tr: character to be used for the top right corner of the window 
-	 * 8. bl: character to be used for the bottom left corner of the window 
-	 * 9. br: character to be used for the bottom right corner of the window
-	 */
-	wrefresh(local_win);
-	delwin(local_win);
+void destroy_win(WINDOW *local_win) {
+  /* box(local_win, ' ', ' '); : This won't produce the desired
+   * result of erasing the window. It will leave it's four corners
+   * and so an ugly remnant of window.
+   */
+  wborder(local_win, ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ');
+  /* The parameters taken are
+   * 1. win: the window on which to operate
+   * 2. ls: character to be used for the left side of the window
+   * 3. rs: character to be used for the right side of the window
+   * 4. ts: character to be used for the top side of the window
+   * 5. bs: character to be used for the bottom side of the window
+   * 6. tl: character to be used for the top left corner of the window
+   * 7. tr: character to be used for the top right corner of the window
+   * 8. bl: character to be used for the bottom left corner of the window
+   * 9. br: character to be used for the bottom right corner of the window
+   */
+  wrefresh(local_win);
+  delwin(local_win);
 }
 
-int main(int argc, char *argv[])
-{	WINDOW *my_win;
-	int startx, starty, width, height;
-	int ch;
+void move_user(Player *user, int y, int x) {
+  int newy = user->y + y;
+  int newx = user->x + x;
+  if (newy < HEIGHT - 2 && newy >= 0) {
+    user->y = newy;
+  }
+  if (newx < WIDTH - 2 && newx >= 0) {
+    user->x = newx;
+  }
+}
 
-	initscr();			/* Start curses mode 		*/
-	cbreak();			/* Line buffering disabled, Pass on
-					 * everty thing to me 		*/
-	keypad(stdscr, TRUE);		/* I need that nifty F1 	*/
+int main(int argc, char *argv[]) {
+  WINDOW *my_win;
+  Player user;
+  int ch;
 
-	height = 3;
-	width = 10;
-	starty = (LINES - height) / 2;	/* Calculating for a center placement */
-	startx = (COLS - width) / 2;	/* of the window		*/
-	printw("Press F1 to exit");
-	refresh();
-	my_win = create_newwin(height, width, starty, startx);
+  user.x = 0;
+  user.y = 0;
 
-	while((ch = getch()) != KEY_F(1))
-	{	switch(ch)
-		{	case KEY_LEFT:
-				destroy_win(my_win);
-				my_win = create_newwin(height, width, starty,--startx);
-				break;
-			case KEY_RIGHT:
-				destroy_win(my_win);
-				my_win = create_newwin(height, width, starty,++startx);
-				break;
-			case KEY_UP:
-				destroy_win(my_win);
-				my_win = create_newwin(height, width, --starty,startx);
-				break;
-			case KEY_DOWN:
-				destroy_win(my_win);
-				my_win = create_newwin(height, width, ++starty,startx);
-				break;	
-		}
-	}
-		
-	endwin();			/* End curses mode		  */
-	return 0;
+  initscr();
+  curs_set(0);
+  cbreak();
+  keypad(stdscr, TRUE);
+
+  printw("Press F1 to exit");
+  refresh();
+  my_win = create_newwin(&user);
+
+  while ((ch = getch()) != KEY_F(1)) {
+    // clang-format off
+	switch (ch) {
+		case KEY_LEFT:
+			destroy_win(my_win);
+			move_user(&user, 0, -1);
+			my_win = create_newwin(&user);
+			break;
+		case KEY_RIGHT:
+			destroy_win(my_win);
+			move_user(&user, 0, 1);
+			my_win = create_newwin(&user);
+			break;
+		case KEY_UP:
+			destroy_win(my_win);
+			move_user(&user, -1, 0);
+			my_win = create_newwin(&user);
+			break;
+		case KEY_DOWN:
+			destroy_win(my_win);
+			move_user(&user, 1, 0);
+			my_win = create_newwin(&user);
+			break;
+    }
+    // clang-format on
+  }
+
+  endwin();
+  return 0;
 }
