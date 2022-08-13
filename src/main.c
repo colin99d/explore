@@ -1,5 +1,6 @@
 #include <ncurses.h>
 #include <stdlib.h>
+#include <string.h>
 #include <time.h>
 
 #include "_menu.h"
@@ -9,7 +10,7 @@
 
 void move_user(Player *user, Location locations[HEIGHT][WIDTH], int y, int x) {
   char *selection = malloc(sizeof(char) * MAX_LEN + 1);
-  int new_location;
+  Location new_location;
   int newy = user->y + y;
   int newx = user->x + x;
   if ((newy < HEIGHT - 2 && newy >= 0 && y != 0) ||
@@ -19,10 +20,13 @@ void move_user(Player *user, Location locations[HEIGHT][WIDTH], int y, int x) {
       new_location = get_location();
       locations[newy][newx] = new_location;
     }
-    if (new_location == 2) {
+    if (new_location == HOME) {
       discovery_menu(user, 40, "home", selection);
-    } else if (new_location == 3) {
+    } else if (new_location == CASTLE) {
       discovery_menu(user, 40, "castle", selection);
+    }
+    if (strcmp("Enter", selection) == 0) {
+      result_menu(user, 40, new_location);
     }
     user->y = newy;
     user->x = newx;

@@ -5,3 +5,4 @@
 #define MAX_LEN 10
 
 void discovery_menu(Player *user,int width, char *string, char* selection);
+void result_menu(Player *user, int width, int location);

@@ -19,3 +19,7 @@ void create_user(Player *user) {
   user->health = 10;
   user->gold = 0;
 }
+
+int get_gold() {
+  return rand() % 10;
+}
