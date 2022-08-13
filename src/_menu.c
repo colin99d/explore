@@ -1,12 +1,11 @@
+#include "_menu.h"
+
 #include <menu.h>
 #include <stdlib.h>
 #include <string.h>
 
-#define ARRAY_SIZE(a) (sizeof(a) / sizeof(a[0]))
-#define CTRLD 4
-
 void print_in_middle(WINDOW *win, int starty, int startx, int width,
-                     char *string, chtype color) {
+                     char *string, chtype color, Player *user) {
   int length, x, y;
   float temp;
 
@@ -21,17 +20,23 @@ void print_in_middle(WINDOW *win, int starty, int startx, int width,
   x = startx + (int)temp;
   wattron(win, color);
   mvwprintw(win, y, x, "%s", string);
-  mvwprintw(win, y+1, x, "%s", "Hello");
   wattroff(win, color);
+  mvwprintw(win, y + 1, startx + 1, "Health: %i", user->health);
   refresh();
 }
 
-void discovery_menu(int starty, int startx, int width, char *string) {
+void discovery_menu(Player *user, int width, char *string, char *selection) {
   char *disc_choices[] = {"Enter", "Leave", (char *)NULL};
+  char title[100] = "Discovered a ";
+  int height = 12;
+  int starty = (LINES - height) / 2;
+  int startx = (COLS - width) / 2;
   WINDOW *my_menu_win;
   MENU *my_menu;
   ITEM **my_items;
   int n_choices, i, c;
+
+  strncat(title, string, 10);
 
   n_choices = ARRAY_SIZE(disc_choices);
   my_items = (ITEM **)calloc(n_choices, sizeof(ITEM *));
@@ -40,19 +45,18 @@ void discovery_menu(int starty, int startx, int width, char *string) {
   }
   my_menu = new_menu((ITEM **)my_items);
 
-  my_menu_win = newwin(10, 40, 4, 4);
+  my_menu_win = newwin(height, width, starty, startx);
   keypad(my_menu_win, TRUE);
 
   set_menu_win(my_menu, my_menu_win);
-  set_menu_sub(my_menu, derwin(my_menu_win, 6, 38, 3, 1));
-
+  set_menu_sub(my_menu, derwin(my_menu_win, 6, 38, 5, 1));
   set_menu_mark(my_menu, " * ");
 
-  print_in_middle(my_menu_win, 1, 0, 40, string, COLOR_PAIR(1));
+  print_in_middle(my_menu_win, 1, 0, 40, title, COLOR_PAIR(4), user);
   box(my_menu_win, 0, 0);
-  mvwaddch(my_menu_win, 2, 0, ACS_LTEE);
-  mvwhline(my_menu_win, 2, 1, ACS_HLINE, 38);
-  mvwaddch(my_menu_win, 2, 39, ACS_RTEE);
+  mvwaddch(my_menu_win, 4, 0, ACS_LTEE);
+  mvwhline(my_menu_win, 4, 1, ACS_HLINE, 38);
+  mvwaddch(my_menu_win, 4, 39, ACS_RTEE);
   mvprintw(LINES - 2, 0, "F1 to exit");
   refresh();
 
@@ -69,32 +73,14 @@ void discovery_menu(int starty, int startx, int width, char *string) {
         menu_driver(my_menu, REQ_UP_ITEM);
         break;
       case 10: /* Enter */
-        move(20, 0);
-        clrtoeol();
-        mvprintw(20, 0, "Item selected is : %s",
-                 item_name(current_item(my_menu)));
-        pos_menu_cursor(my_menu);
+        strcpy(selection, item_name(current_item(my_menu)));
         goto exit_loop;
     }
     wrefresh(my_menu_win);
   }
 exit_loop:;
 
-  /* Unpost and free all the memory taken up */
   unpost_menu(my_menu);
   free_menu(my_menu);
   for (i = 0; i < n_choices; ++i) free_item(my_items[i]);
-  endwin();
 }
-int main() {
-  /* Initialize curses */
-  initscr();
-  start_color();
-  cbreak();
-  noecho();
-  curs_set(0);
-  keypad(stdscr, TRUE);
-  init_pair(1, COLOR_RED, COLOR_BLACK);
-  discovery_menu(1, 0, 40, "My Menu");
-}
-

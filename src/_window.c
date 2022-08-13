@@ -1,5 +1,7 @@
 #include <ncurses.h>
 
+#include "main.h"
+
 void destroy_win(WINDOW *local_win) {
   /* box(local_win, ' ', ' '); : This won't produce the desired
    * result of erasing the window. It will leave it's four corners
@@ -26,5 +28,32 @@ void generate_color() {
   init_pair(1, COLOR_GREEN, COLOR_BLACK);
   init_pair(2, COLOR_YELLOW, COLOR_BLACK);
   init_pair(3, COLOR_BLUE, COLOR_BLACK);
+  init_pair(4, COLOR_RED, COLOR_BLACK);
   init_pair(10, COLOR_CYAN, COLOR_BLACK);
+}
+
+WINDOW *create_newwin(Player *user, Location locations[HEIGHT][WIDTH]) {
+  WINDOW *local_win;
+  int starty = (LINES - HEIGHT) / 2;
+  int startx = (COLS - WIDTH) / 2;
+  int i, j;
+
+  local_win = newwin(HEIGHT, WIDTH, starty, startx);
+  box(local_win, 0, 0);
+  // Draw the field
+  for (i = 0; i < HEIGHT - 2; i++) {
+    for (j = 0; j < WIDTH - 2; j++) {
+      // Adding '0' only works for numbers below 10
+      attron(COLOR_PAIR(locations[i][j]));
+      mvaddch(starty + 1 + i, startx + 1 + j, locations[i][j] + '0');
+      attroff(COLOR_PAIR(locations[i][j]));
+    }
+  }
+  // The below draws the player
+  attron(COLOR_PAIR(10));
+  mvaddch(starty + 1 + user->y, startx + 1 + user->x, 'A');
+  attroff(COLOR_PAIR(10));
+  wrefresh(local_win);
+
+  return local_win;
 }
