@@ -1,9 +1,14 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_timer.h>
+#include <SDL2/SDL_ttf.h>
 
 #include "_helpers.h"
+int showmenu(SDL_Surface *screen, TTF_Font *font) {
+  double time;
 
+
+}
 
 int main(int argc, char* argv[]) {
   SDL_Rect destinations[rows][cols] = {0};

@@ -7,3 +7,10 @@ To compile ncurses menu use:
 
 To compile sdl2:
 - gcc src/_sdl.c -o game -I /opt/homebrew/opt/sdl2/include -L /opt/homebrew/opt/sdl2/lib -lSDL2
+
+
+To build from source:
+- cd into project
+- ./configure
+- make
+-
