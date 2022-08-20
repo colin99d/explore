@@ -17,17 +17,16 @@ TTF_Font* load_font(char* path, int size) {
 
 int main(int argc, char* argv[]) {
   SDL_Rect destinations[ROWS][COLS] = {0};
-  Fonts fonts;
-  Player user;
   int positions[ROWS][COLS] = {0};
-  int i, j, response;
   Location position;
   Textures textures;
+  Fonts fonts;
+  Player user;
+  int i, j;
 
   positions[0][0] = 1;
 
   create_user(&user);
-  // returns zero on success else non-zero
   if (SDL_Init(SDL_INIT_EVERYTHING) != 0) {
     printf("error initializing SDL: %s\n", SDL_GetError());
   }
@@ -38,8 +37,7 @@ int main(int argc, char* argv[]) {
   fonts.large = load_font("fonts/bodoni-roman.ttf", 60);
   fonts.medium = load_font("fonts/bodoni-roman.ttf", 45);
   fonts.small = load_font("fonts/bodoni-roman.ttf", 30);
-  SDL_Window* win = SDL_CreateWindow("GAME",  // creates a window
-                                     SDL_WINDOWPOS_CENTERED,
+  SDL_Window* win = SDL_CreateWindow("GAME", SDL_WINDOWPOS_CENTERED,
                                      SDL_WINDOWPOS_CENTERED, WIDTH, HEIGHT, 0);
 
   // triggers the program that controls
@@ -62,15 +60,8 @@ int main(int argc, char* argv[]) {
   }
   SDL_RenderPresent(rend);
 
-  Menu house_menu;
-  strcpy(house_menu.title, "Discovered a home");
-  strcpy(house_menu.message,
-         "A loney home in the woods. Will you enter or flee?");
-  strcpy(house_menu.button1, "Enter");
-  strcpy(house_menu.button2, "Flee");
-  response = showmenu(rend, &fonts, &house_menu);
-  int close = 0;
-  while (!close) {
+  int gameIsRunning = 1;
+  while (gameIsRunning) {
     SDL_Event event;
 
     // Events management
@@ -78,22 +69,22 @@ int main(int argc, char* argv[]) {
       switch (event.type) {
         case SDL_QUIT:
           // handling of close button
-          close = 1;
+          gameIsRunning = 0;
           break;
         case SDL_KEYDOWN:
-          handle_input(&event, &user, positions);
+          if (handle_input(&event, &user, positions, rend, &fonts) == -1) {
+            gameIsRunning = 0;
+          }
           break;
       }
     }
 
-    // clears the screen
     SDL_RenderClear(rend);
 
     // triggers the double buffers
     // for multiple rendering
     for (i = 0; i < ROWS; i++) {
       for (j = 0; j < COLS; j++) {
-        // SDL_RenderCopy(rend, texgrass, NULL, &destinations[i][j]);
         position = positions[i][j];
         if (position == UNKNOWN) {
           SDL_RenderCopy(rend, textures.grass, NULL, &destinations[i][j]);
@@ -121,7 +112,6 @@ int main(int argc, char* argv[]) {
 
     SDL_RenderPresent(rend);
 
-    // calculates to 60 fps
     SDL_Delay(1000 / 60);
   }
 

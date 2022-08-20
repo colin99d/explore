@@ -4,6 +4,8 @@
 #include <SDL2/SDL_timer.h>
 #include <stdlib.h>
 
+#include "_menu.h"
+
 int get_location() {
   double random_number;
   random_number = (double)rand() / (double)RAND_MAX;
@@ -55,11 +57,12 @@ void load_textures(Textures* textures, SDL_Renderer* rend) {
   SDL_FreeSurface(castle_active);
 }
 
-void move_user(Player* user, Location locations[ROWS][COLS], int y, int x) {
-  // char* selection = malloc(sizeof(char) * MAX_LEN + 1);
+int move_user(Player* user, Location locations[ROWS][COLS], int y, int x,
+              SDL_Renderer* rend, Fonts* fonts) {
   Location new_location;
   int newy = user->y + y;
   int newx = user->x + x;
+  int response = 1;
   if ((newy < ROWS && newy >= 0 && y != 0) ||
       (newx < COLS && newx >= 0 && x != 0)) {
     new_location = locations[newy][newx];
@@ -67,45 +70,45 @@ void move_user(Player* user, Location locations[ROWS][COLS], int y, int x) {
       new_location = get_location();
       locations[newy][newx] = new_location;
     }
-    /*
-    if (new_location == HOME) {
-      discovery_menu(user, 40, "home", selection);
-    } else if (new_location == CASTLE) {
-      discovery_menu(user, 40, "castle", selection);
+    if (new_location == HOME || new_location == CASTLE) {
+      response = discover_menu(new_location, rend, fonts);
     }
-    if (strcmp("Enter", selection) == 0) {
-      result_menu(user, 40, new_location);
+    if (response == 0) {
+      // result_menu(user, 40, new_location);
     }
-    */
     user->y = newy;
     user->x = newx;
   }
+  return response;
 }
 
-void handle_input(SDL_Event* event, Player* user, int positions[ROWS][COLS]) {
+int handle_input(SDL_Event* event, Player* user, int positions[ROWS][COLS],
+                 SDL_Renderer* rend, Fonts* fonts) {
+  int response = 0;
   switch (event->key.keysym.scancode) {
     case SDL_SCANCODE_W:
     case SDL_SCANCODE_UP:
-      move_user(user, positions, -1, 0);
+      response = move_user(user, positions, -1, 0, rend, fonts);
       break;
     case SDL_SCANCODE_A:
     case SDL_SCANCODE_LEFT:
-      move_user(user, positions, 0, -1);
+      response = move_user(user, positions, 0, -1, rend, fonts);
       break;
     case SDL_SCANCODE_S:
     case SDL_SCANCODE_DOWN:
-      move_user(user, positions, 1, 0);
+      response = move_user(user, positions, 1, 0, rend, fonts);
       break;
     case SDL_SCANCODE_D:
     case SDL_SCANCODE_RIGHT:
-      move_user(user, positions, 0, 1);
+      response = move_user(user, positions, 0, 1, rend, fonts);
       break;
     default:
       break;
   }
+  return response;
 }
 
-void destroy_textures(Textures *textures) {
+void destroy_textures(Textures* textures) {
   SDL_DestroyTexture(textures->grass);
   SDL_DestroyTexture(textures->cleared);
   SDL_DestroyTexture(textures->cleared_active);
