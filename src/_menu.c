@@ -3,23 +3,23 @@
 
 #include "_menu.h"
 
-int showmenu(SDL_Renderer* rend, TTF_Font* font) {
+
+int showmenu(SDL_Renderer* rend, Fonts *fonts, Menu *menu) {
   int x, y;
-  const int NUMMENU = 2;
-  const char* labels[NUMMENU] = {"Continue", "Exit"};
-  SDL_Surface* menus[NUMMENU];
-  SDL_Color color[NUMMENU] = {{255, 255, 255}, {255, 0, 0}};
+  const int NUMOPTIONS = 2;
+  SDL_Surface* menus[NUMOPTIONS];
   SDL_Rect rectangle;
   int gameIsRunning = 1;
   SDL_Rect Message_rect;
   SDL_Color White = {255, 255, 255};
+
+  // Create title
   SDL_Surface* surfaceMessage =
-  TTF_RenderText_Solid(font, "put your text here", White); 
+  TTF_RenderText_Solid(fonts->large, menu->title, White);
   SDL_Texture* Message = SDL_CreateTextureFromSurface(rend, surfaceMessage);
+  printf("-----3-----\n");
   SDL_FreeSurface(surfaceMessage);
 
-  menus[0] = TTF_RenderText_Solid(font, labels[0], color[0]);
-  menus[1] = TTF_RenderText_Solid(font, labels[1], color[0]);
   // SDL_Texture* Message = SDL_CreateTextureFromSurface(rend, menus[0]);
   rectangle.x = 100;
   rectangle.y = 200;
@@ -48,11 +48,11 @@ int showmenu(SDL_Renderer* rend, TTF_Font* font) {
         case SDL_MOUSEBUTTONDOWN:
           x = event.button.x;
           y = event.button.y;
-          for (int i = 0; i < NUMMENU; i += 1) {
+          for (int i = 0; i < NUMOPTIONS; i += 1) {
             if (x >= rectangle.x && x <= rectangle.x + rectangle.w &&
                 y >= rectangle.y && y <= rectangle.y + rectangle.h) {
-              SDL_FreeSurface(menus[0]);
-              SDL_FreeSurface(menus[1]);
+              //SDL_FreeSurface(menus[0]);
+              //SDL_FreeSurface(menus[1]);
               return i;
             }
           }
@@ -89,7 +89,7 @@ int showmenu(SDL_Renderer* rend, TTF_Font* font) {
         case SDL_MOUSEMOTION:
           x = event.motion.x;
           y = event.motion.y;
-          for (int i = 0; i < NUMMENU; i += 1) {
+          for (int i = 0; i < NUMOPTIONS; i += 1) {
             if (x >= pos[i].x && x <= pos[i].x + pos[i].w && y >= pos[i].y &&
                 y <= pos[i].y + pos[i].h) {
               if (!selected[i]) {
@@ -109,7 +109,7 @@ int showmenu(SDL_Renderer* rend, TTF_Font* font) {
         case SDL_MOUSEBUTTONDOWN:
           x = event.button.x;
           y = event.button.y;
-          for (int i = 0; i < NUMMENU; i += 1) {
+          for (int i = 0; i < NUMOPTIONS; i += 1) {
             if (x >= pos[i].x && x <= pos[i].x + pos[i].w && y >= pos[i].y &&
                 y <= pos[i].y + pos[i].h) {
               SDL_FreeSurface(menus[0]);
@@ -126,7 +126,7 @@ int showmenu(SDL_Renderer* rend, TTF_Font* font) {
           }
       }
     }
-    for (int i = 0; i < NUMMENU; i += 1) {
+    for (int i = 0; i < NUMOPTIONS; i += 1) {
       // SDL_BlitSurface(menus[i], NULL, rend, &pos[i]);
     }
     SDL_RenderPresent(rend);
