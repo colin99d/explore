@@ -4,53 +4,82 @@
 #include <SDL2/SDL_ttf.h>
 
 #include "_helpers.h"
-int showmenu(SDL_Surface *screen, TTF_Font *font) {
+int showmenu(SDL_Surface* screen, TTF_Font* font) {
   double time;
-  int x, y, i;
+  int x, y;
   const int NUMMENU = 2;
-  const char *labels[NUMMENU] = {"Continue", "Exit"};
-  SDL_Surface *menus[NUMMENU] = {0};
-  int selected[NUMMENU] = {0};
-  SDL_Color color[2] = {{255,255,255},{255,0,0}};
+  const char* labels[NUMMENU] = {"Continue", "Exit"};
+  SDL_Surface* menus[NUMMENU];
+  int selected[NUMMENU] = {0, 0};
+  SDL_Color color[2] = {{255, 255, 255}, {255, 0, 0}};
 
   menus[0] = TTF_RenderText_Solid(font, labels[0], color[0]);
   menus[1] = TTF_RenderText_Solid(font, labels[1], color[0]);
   SDL_Rect pos[NUMMENU];
+  pos[0].x = screen->clip_rect.w / 2 - menus[0]->clip_rect.w / 2;
+  pos[0].y = screen->clip_rect.h / 2 - menus[0]->clip_rect.h;
+  pos[1].x = screen->clip_rect.w / 2 - menus[0]->clip_rect.w / 2;
+  pos[1].y = screen->clip_rect.h / 2 + menus[0]->clip_rect.h;
 
-  pos[0].x = 20;
-  pos[0].y = 20;
-  pos[1].x = 20;
-  pos[1].y = 20;
+  SDL_FillRect(screen, &screen->clip_rect,
+	       SDL_MapRGB(screen->format, 0x00, 0x00, 0x00));
 
   SDL_Event event;
-
-  while(1) {
+  while (1) {
     time = SDL_GetTicks();
-    while(SDL_PollEvent(&event)) {
-      switch(event.type) {
-        case SDL_QUIT:
-          for (i=0; i<NUMMENU; i++) {
-            SDL_FreeSurface(menus[i]);
-          }
-          return 1;
-        case SDL_MOUSEMOTION:
-          x = event.motion.x;
-          y = event.motion.y;
-          for (i=0; i<NUMMENU; i++) { 
-            if(x>=pos[i].x && x<=pos[i].x+pos[i].w && y>=pos[i].y && y<=pos[i].y+pos[i].h) {
-              if(!selected[i]) {
-                selected[i] = 1;
-                SDL_FreeSurface(menus[i]);
-                menu[i] = TTF_RenderText_Solid(font, menus[i], color[1]);
-              }
-            }
-          }
+    while (SDL_PollEvent(&event)) {
+      switch (event.type) {
+	case SDL_QUIT:
+	  SDL_FreeSurface(menus[0]);
+	  SDL_FreeSurface(menus[1]);
+	  return 1;
+	case SDL_MOUSEMOTION:
+	  x = event.motion.x;
+	  y = event.motion.y;
+	  for (int i = 0; i < NUMMENU; i += 1) {
+	    if (x >= pos[i].x && x <= pos[i].x + pos[i].w && y >= pos[i].y &&
+		y <= pos[i].y + pos[i].h) {
+	      if (!selected[i]) {
+		selected[i] = 1;
+		SDL_FreeSurface(menus[i]);
+		menus[i] = TTF_RenderText_Solid(font, labels[i], color[1]);
+	      }
+	    } else {
+	      if (selected[i]) {
+		selected[i] = 0;
+		SDL_FreeSurface(menus[i]);
+		menus[i] = TTF_RenderText_Solid(font, labels[i], color[0]);
+	      }
+	    }
+	  }
+	  break;
+	case SDL_MOUSEBUTTONDOWN:
+	  x = event.button.x;
+	  y = event.button.y;
+	  for (int i = 0; i < NUMMENU; i += 1) {
+	    if (x >= pos[i].x && x <= pos[i].x + pos[i].w && y >= pos[i].y &&
+		y <= pos[i].y + pos[i].h) {
+	      SDL_FreeSurface(menus[0]);
+	      SDL_FreeSurface(menus[1]);
+	      return i;
+	    }
+	  }
+	  break;
+	case SDL_KEYDOWN:
+	  if (event.key.keysym.sym == SDLK_ESCAPE) {
+	    SDL_FreeSurface(menus[0]);
+	    SDL_FreeSurface(menus[1]);
+	    return 0;
+	  }
       }
     }
-
+    for (int i = 0; i < NUMMENU; i += 1) {
+      SDL_BlitSurface(menus[i], NULL, screen, &pos[i]);
+    }
+    SDL_RenderPresent(screen);
+    if (1000 / 30 > (SDL_GetTicks() - time))
+      SDL_Delay(1000 / 30 - (SDL_GetTicks() - time));
   }
-
-
 }
 
 int main(int argc, char* argv[]) {
@@ -69,8 +98,8 @@ int main(int argc, char* argv[]) {
     printf("error initializing SDL: %s\n", SDL_GetError());
   }
   SDL_Window* win = SDL_CreateWindow("GAME",  // creates a window
-                                     SDL_WINDOWPOS_CENTERED,
-                                     SDL_WINDOWPOS_CENTERED, width, height, 0);
+				     SDL_WINDOWPOS_CENTERED,
+				     SDL_WINDOWPOS_CENTERED, width, height, 0);
 
   // triggers the program that controls
   // your graphics hardware and sets flags
@@ -99,13 +128,13 @@ int main(int argc, char* argv[]) {
     // Events management
     while (SDL_PollEvent(&event)) {
       switch (event.type) {
-        case SDL_QUIT:
-          // handling of close button
-          close = 1;
-          break;
-        case SDL_KEYDOWN:
-          handle_input(&event, &user, positions);
-          break;
+	case SDL_QUIT:
+	  // handling of close button
+	  close = 1;
+	  break;
+	case SDL_KEYDOWN:
+	  handle_input(&event, &user, positions);
+	  break;
       }
     }
 
@@ -116,27 +145,30 @@ int main(int argc, char* argv[]) {
     // for multiple rendering
     for (i = 0; i < rows; i++) {
       for (j = 0; j < cols; j++) {
-        // SDL_RenderCopy(rend, texgrass, NULL, &destinations[i][j]);
-        position = positions[i][j];
-        if (position == UNKNOWN) {
-          SDL_RenderCopy(rend, textures.grass, NULL, &destinations[i][j]);
-        } else if (position == GRASS) {
-          SDL_RenderCopy(rend, textures.cleared, NULL, &destinations[i][j]);
-        } else if (position == HOME) {
-          SDL_RenderCopy(rend, textures.home, NULL, &destinations[i][j]);
-        } else if (position == CASTLE) {
-          SDL_RenderCopy(rend, textures.castle, NULL, &destinations[i][j]);
-        }
+	// SDL_RenderCopy(rend, texgrass, NULL, &destinations[i][j]);
+	position = positions[i][j];
+	if (position == UNKNOWN) {
+	  SDL_RenderCopy(rend, textures.grass, NULL, &destinations[i][j]);
+	} else if (position == GRASS) {
+	  SDL_RenderCopy(rend, textures.cleared, NULL, &destinations[i][j]);
+	} else if (position == HOME) {
+	  SDL_RenderCopy(rend, textures.home, NULL, &destinations[i][j]);
+	} else if (position == CASTLE) {
+	  SDL_RenderCopy(rend, textures.castle, NULL, &destinations[i][j]);
+	}
       }
     }
     // draw current user position
     position = positions[user.y][user.x];
     if (position == GRASS) {
-      SDL_RenderCopy(rend, textures.cleared_active, NULL, &destinations[user.y][user.x]);
+      SDL_RenderCopy(rend, textures.cleared_active, NULL,
+		     &destinations[user.y][user.x]);
     } else if (position == HOME) {
-      SDL_RenderCopy(rend, textures.home_active, NULL, &destinations[user.y][user.x]);
+      SDL_RenderCopy(rend, textures.home_active, NULL,
+		     &destinations[user.y][user.x]);
     } else if (position == CASTLE) {
-      SDL_RenderCopy(rend, textures.castle_active, NULL, &destinations[user.y][user.x]);
+      SDL_RenderCopy(rend, textures.castle_active, NULL,
+		     &destinations[user.y][user.x]);
     }
 
     SDL_RenderPresent(rend);

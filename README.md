@@ -14,3 +14,7 @@ To build from source:
 - ./configure
 - make
 - make install
+
+To get SDL2_ttf working:
+- export CPATH=/opt/homebrew/include
+- export LIBRARY_PATH=/opt/homebrew/lib
