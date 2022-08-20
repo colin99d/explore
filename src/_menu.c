@@ -140,3 +140,19 @@ int discover_menu(Location new_location, SDL_Renderer* rend, Fonts* fonts) {
   response = showmenu(rend, fonts, &menu);
   return response;
 }
+
+int result_menu(Player *user, Location new_location, SDL_Renderer* rend, Fonts* fonts) {
+  int response;
+  Menu menu;
+  if (new_location == HOME) {
+    strcpy(menu.title, "Found Treasure");
+    strcpy(menu.message, "A loney home in the woods. Will you enter or flee?");
+  } else if (new_location == CASTLE) {
+    strcpy(menu.title, "Discovered a castle");
+    strcpy(menu.message, "A large fortress. Will you go inside?");
+  }
+  strcpy(menu.button1, "Enter");
+  strcpy(menu.button2, "Flee");
+  response = showmenu(rend, fonts, &menu);
+  return response;
+}

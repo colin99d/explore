@@ -74,7 +74,7 @@ int move_user(Player* user, Location locations[ROWS][COLS], int y, int x,
       response = discover_menu(new_location, rend, fonts);
     }
     if (response == 0) {
-      // result_menu(user, 40, new_location);
+      result_menu(user, 40, new_location);
     }
     user->y = newy;
     user->x = newx;

@@ -108,9 +108,7 @@ int main(int argc, char* argv[]) {
       SDL_RenderCopy(rend, textures.castle_active, NULL,
                      &destinations[user.y][user.x]);
     }
-
     SDL_RenderPresent(rend);
-
     SDL_Delay(1000 / 60);
   }
 

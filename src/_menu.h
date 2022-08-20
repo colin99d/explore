@@ -19,4 +19,6 @@ typedef struct {
 } Menu;
 
 int showmenu(SDL_Renderer *rend, Fonts *fonts, Menu *menu);
-int discover_menu(Location new_location, SDL_Renderer* rend, Fonts* fonts);
+int discover_menu(Location new_location, SDL_Renderer *rend, Fonts *fonts);
+int result_menu(Player *user, Location new_location, SDL_Renderer *rend,
+                Fonts *fonts);
