@@ -14,11 +14,10 @@ typedef struct {
 typedef struct {
   char title[200];
   char message[200];
-  char button1[200];
-  char button2[200];
+  char *buttons[200];
+  int button_count;
 } Menu;
 
-int showmenu(SDL_Renderer *rend, Fonts *fonts, Menu *menu);
 int discover_menu(Location new_location, SDL_Renderer *rend, Fonts *fonts);
 int result_menu(Player *user, Location new_location, SDL_Renderer *rend,
                 Fonts *fonts);

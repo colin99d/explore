@@ -3,19 +3,21 @@
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_timer.h>
 
+#include "_helpers.h"
 #include "main.h"
 
 int showmenu(SDL_Renderer* rend, Fonts* fonts, Menu* menu) {
-  const int NUMOPTIONS = 2;
-  const int NUMMESSAGES = 4;
+  const int max_buttons = 10;
+  const int NUMOPTIONS = menu->button_count;
+  const int NUMMESSAGES = 2 + menu->button_count;
   const int button_width = 200;
   const int button_height = 200;
   int menuIsRunning = 1;
   int x, y, i, response = 0;
-  SDL_Rect rectangle[NUMOPTIONS];
-  SDL_Rect Message_rects[NUMMESSAGES] = {0};
-  SDL_Texture* Messages[NUMMESSAGES] = {0};
-  SDL_Surface* surfMessages[NUMMESSAGES] = {0};
+  SDL_Rect rect[max_buttons];
+  SDL_Rect Message_rects[max_buttons];
+  SDL_Texture* Messages[max_buttons];
+  SDL_Surface* surfMessages[max_buttons];
   SDL_Color Black = {0, 0, 0};
   int back_color[3] = {144, 238, 144};
   int button_color[3] = {188, 158, 130};
@@ -29,32 +31,29 @@ int showmenu(SDL_Renderer* rend, Fonts* fonts, Menu* menu) {
   Messages[1] = SDL_CreateTextureFromSurface(rend, surfMessages[1]);
 
   // Create button text
-  surfMessages[2] = TTF_RenderText_Solid(fonts->medium, menu->button1, Black);
-  Messages[2] = SDL_CreateTextureFromSurface(rend, surfMessages[2]);
-  surfMessages[3] = TTF_RenderText_Solid(fonts->medium, menu->button2, Black);
-  Messages[3] = SDL_CreateTextureFromSurface(rend, surfMessages[3]);
+  for (i = 0; i < NUMOPTIONS; ++i) {
+    surfMessages[2 + i] =
+        TTF_RenderText_Solid(fonts->medium, menu->buttons[i], Black);
+    Messages[2 + i] = SDL_CreateTextureFromSurface(rend, surfMessages[2 + i]);
+  }
 
   // Draw buttons for choices
   for (i = 0; i < NUMOPTIONS; i++) {
-    rectangle[i].w = button_width;
-    rectangle[i].h = button_height;
-    rectangle[i].y = 600;
-    rectangle[i].x = ((WIDTH / NUMOPTIONS) * i) +
-                     (((WIDTH / NUMOPTIONS) - button_width) / 2);
+    rect[i].w = button_width;
+    rect[i].h = button_height;
+    rect[i].y = 600;
+    rect[i].x = ((WIDTH / NUMOPTIONS) * i) +
+                (((WIDTH / NUMOPTIONS) - button_width) / 2);
   }
   // Generate messages
   Message_rects[0].x = (WIDTH - surfMessages[0]->w) / 2;
   Message_rects[0].y = 20;
   Message_rects[1].x = (WIDTH - surfMessages[1]->w) / 2;
   Message_rects[1].y = 200;
-  Message_rects[2].x =
-      rectangle[0].x + ((rectangle[0].w - surfMessages[2]->w) / 2);
-  Message_rects[2].y =
-      rectangle[0].y + ((rectangle[0].h - surfMessages[2]->h) / 2);
-  Message_rects[3].x =
-      rectangle[1].x + ((rectangle[1].w - surfMessages[3]->w) / 2);
-  Message_rects[3].y =
-      rectangle[1].y + ((rectangle[1].h - surfMessages[3]->h) / 2);
+  Message_rects[2].x = rect[0].x + ((rect[0].w - surfMessages[2]->w) / 2);
+  Message_rects[2].y = rect[0].y + ((rect[0].h - surfMessages[2]->h) / 2);
+  Message_rects[3].x = rect[1].x + ((rect[1].w - surfMessages[3]->w) / 2);
+  Message_rects[3].y = rect[1].y + ((rect[1].h - surfMessages[3]->h) / 2);
 
   for (i = 0; i < NUMMESSAGES; i++) {
     if (Messages[i] != 0) {
@@ -80,8 +79,8 @@ int showmenu(SDL_Renderer* rend, Fonts* fonts, Menu* menu) {
           x = event.button.x;
           y = event.button.y;
           for (i = 0; i < NUMOPTIONS; i++) {
-            if (x >= rectangle[i].x && x <= rectangle[i].x + rectangle[i].w &&
-                y >= rectangle[i].y && y <= rectangle[i].y + rectangle[i].h) {
+            if (x >= rect[i].x && x <= rect[i].x + rect[i].w &&
+                y >= rect[i].y && y <= rect[i].y + rect[i].h) {
               response = i;
               menuIsRunning = 0;
             }
@@ -102,7 +101,7 @@ int showmenu(SDL_Renderer* rend, Fonts* fonts, Menu* menu) {
                            button_color[2], SDL_ALPHA_OPAQUE);
 
     for (i = 0; i < NUMOPTIONS; i++) {
-      SDL_RenderFillRect(rend, &rectangle[i]);
+      SDL_RenderFillRect(rend, &rect[i]);
     }
 
     // Add text
@@ -135,24 +134,25 @@ int discover_menu(Location new_location, SDL_Renderer* rend, Fonts* fonts) {
     strcpy(menu.title, "Discovered a castle");
     strcpy(menu.message, "A large fortress. Will you go inside?");
   }
-  strcpy(menu.button1, "Enter");
-  strcpy(menu.button2, "Flee");
+  menu.buttons[0] = "Enter";
+  menu.buttons[1] = "Flee";
+  menu.button_count = 2;
   response = showmenu(rend, fonts, &menu);
   return response;
 }
 
-int result_menu(Player *user, Location new_location, SDL_Renderer* rend, Fonts* fonts) {
-  int response;
+int result_menu(Player* user, Location new_location, SDL_Renderer* rend,
+                Fonts* fonts) {
   Menu menu;
-  if (new_location == HOME) {
-    strcpy(menu.title, "Found Treasure");
-    strcpy(menu.message, "A loney home in the woods. Will you enter or flee?");
-  } else if (new_location == CASTLE) {
-    strcpy(menu.title, "Discovered a castle");
-    strcpy(menu.message, "A large fortress. Will you go inside?");
-  }
-  strcpy(menu.button1, "Enter");
-  strcpy(menu.button2, "Flee");
+  int response;
+  int gold = get_gold();
+  char message[200];
+  sprintf(message, "We found %i pieces of gold.", gold);
+  strcpy(menu.title, "Found Treasure");
+  strcpy(menu.message, message);
+  menu.buttons[0] = "Continue";
+  menu.button_count = 1;
   response = showmenu(rend, fonts, &menu);
+  user->gold = user->gold + gold;
   return response;
 }
