@@ -41,6 +41,12 @@ int main(int argc, char* argv[]) {
   SDL_Window* win = SDL_CreateWindow("GAME", SDL_WINDOWPOS_CENTERED,
                                      SDL_WINDOWPOS_CENTERED, WIDTH, HEIGHT, 0);
 
+  /*
+  if (SDL_SetWindowFullscreen(win, SDL_WINDOW_FULLSCREEN)) {
+    printf("error going fullscreen: %s\n", SDL_GetError());
+  }
+  */
+
   // triggers the program that controls
   // your graphics hardware and sets flags
   Uint32 render_flags = SDL_RENDERER_ACCELERATED;
@@ -59,6 +65,8 @@ int main(int argc, char* argv[]) {
       destinations[i][j].y = i * OBJ_HEIGHT;
     }
   }
+  fightmenu(rend, &fonts);
+  gameIsRunning = 0;
 
   while (gameIsRunning) {
     SDL_Event event;
