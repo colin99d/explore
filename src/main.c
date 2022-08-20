@@ -18,6 +18,7 @@ TTF_Font* load_font(char* path, int size) {
 int main(int argc, char* argv[]) {
   SDL_Rect destinations[ROWS][COLS] = {0};
   int positions[ROWS][COLS] = {0};
+  int gameIsRunning = 1;
   Location position;
   Textures textures;
   Fonts fonts;
@@ -58,9 +59,7 @@ int main(int argc, char* argv[]) {
       destinations[i][j].y = i * OBJ_HEIGHT;
     }
   }
-  SDL_RenderPresent(rend);
 
-  int gameIsRunning = 1;
   while (gameIsRunning) {
     SDL_Event event;
 
@@ -115,6 +114,7 @@ int main(int argc, char* argv[]) {
     SDL_Delay(1000 / 60);
   }
 
+  destroy_textures(&textures);
   SDL_DestroyRenderer(rend);
   SDL_DestroyWindow(win);
   SDL_Quit();
