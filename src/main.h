@@ -1,11 +1,11 @@
 #include <SDL2/SDL_image.h>
 
-#define width 1000
-#define height 1000
-#define obj_width 50
-#define obj_height 50
-#define rows 20
-#define cols 20
+#define WIDTH 1000
+#define HEIGHT 1000
+#define OBJ_WIDTH 50
+#define OBJ_HEIGHT 50
+#define ROWS 20
+#define COLS 20
 
 #pragma once
 typedef struct {

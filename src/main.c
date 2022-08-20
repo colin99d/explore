@@ -16,10 +16,10 @@ TTF_Font* load_font(char* path, int size) {
 }
 
 int main(int argc, char* argv[]) {
-  SDL_Rect destinations[rows][cols] = {0};
+  SDL_Rect destinations[ROWS][COLS] = {0};
   Fonts fonts;
   Player user;
-  int positions[rows][cols] = {0};
+  int positions[ROWS][COLS] = {0};
   int i, j, response;
   Location position;
   Textures textures;
@@ -35,12 +35,12 @@ int main(int argc, char* argv[]) {
   if (TTF_Init() != 0) {
     printf("error initializing TTF: %s\n", TTF_GetError());
   }
-  fonts.large = load_font("fonts/bodoni-roman.ttf", 40);
-  fonts.medium = load_font("fonts/bodoni-roman.ttf", 30);
-  fonts.small = load_font("fonts/bodoni-roman.ttf", 20);
+  fonts.large = load_font("fonts/bodoni-roman.ttf", 60);
+  fonts.medium = load_font("fonts/bodoni-roman.ttf", 45);
+  fonts.small = load_font("fonts/bodoni-roman.ttf", 30);
   SDL_Window* win = SDL_CreateWindow("GAME",  // creates a window
                                      SDL_WINDOWPOS_CENTERED,
-                                     SDL_WINDOWPOS_CENTERED, width, height, 0);
+                                     SDL_WINDOWPOS_CENTERED, WIDTH, HEIGHT, 0);
 
   // triggers the program that controls
   // your graphics hardware and sets flags
@@ -52,12 +52,12 @@ int main(int argc, char* argv[]) {
 
   // creates a surface to load an image into the main memory
 
-  for (i = 0; i < rows; i++) {
-    for (j = 0; j < cols; j++) {
-      destinations[i][j].w = obj_width;
-      destinations[i][j].h = obj_height;
-      destinations[i][j].x = j * obj_width;
-      destinations[i][j].y = i * obj_height;
+  for (i = 0; i < ROWS; i++) {
+    for (j = 0; j < COLS; j++) {
+      destinations[i][j].w = OBJ_WIDTH;
+      destinations[i][j].h = OBJ_HEIGHT;
+      destinations[i][j].x = j * OBJ_WIDTH;
+      destinations[i][j].y = i * OBJ_HEIGHT;
     }
   }
   SDL_RenderPresent(rend);
@@ -91,8 +91,8 @@ int main(int argc, char* argv[]) {
 
     // triggers the double buffers
     // for multiple rendering
-    for (i = 0; i < rows; i++) {
-      for (j = 0; j < cols; j++) {
+    for (i = 0; i < ROWS; i++) {
+      for (j = 0; j < COLS; j++) {
         // SDL_RenderCopy(rend, texgrass, NULL, &destinations[i][j]);
         position = positions[i][j];
         if (position == UNKNOWN) {

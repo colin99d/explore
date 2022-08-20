@@ -55,13 +55,13 @@ void load_textures(Textures* textures, SDL_Renderer* rend) {
   SDL_FreeSurface(castle_active);
 }
 
-void move_user(Player* user, Location locations[rows][cols], int y, int x) {
+void move_user(Player* user, Location locations[ROWS][COLS], int y, int x) {
   // char* selection = malloc(sizeof(char) * MAX_LEN + 1);
   Location new_location;
   int newy = user->y + y;
   int newx = user->x + x;
-  if ((newy < rows && newy >= 0 && y != 0) ||
-      (newx < cols && newx >= 0 && x != 0)) {
+  if ((newy < ROWS && newy >= 0 && y != 0) ||
+      (newx < COLS && newx >= 0 && x != 0)) {
     new_location = locations[newy][newx];
     if (new_location == UNKNOWN) {
       new_location = get_location();
@@ -82,7 +82,7 @@ void move_user(Player* user, Location locations[rows][cols], int y, int x) {
   }
 }
 
-void handle_input(SDL_Event* event, Player* user, int positions[rows][cols]) {
+void handle_input(SDL_Event* event, Player* user, int positions[ROWS][COLS]) {
   switch (event->key.keysym.scancode) {
     case SDL_SCANCODE_W:
     case SDL_SCANCODE_UP:

@@ -2,14 +2,17 @@
 #include <SDL2/SDL_timer.h>
 
 #include "_menu.h"
+#include "main.h"
 
 
 int showmenu(SDL_Renderer* rend, Fonts *fonts, Menu *menu) {
-  int x, y;
+  int x, y, i;
   const int NUMOPTIONS = 2;
-  SDL_Surface* menus[NUMOPTIONS];
-  SDL_Rect rectangle;
-  int gameIsRunning = 1;
+  const int button_width = 200;
+  const int button_height = 200;
+  SDL_Surface* options[NUMOPTIONS];
+  SDL_Rect rectangle[NUMOPTIONS];
+  int menuIsRunning = 1;
   SDL_Rect Message_rect;
   SDL_Color White = {255, 255, 255};
 
@@ -17,21 +20,21 @@ int showmenu(SDL_Renderer* rend, Fonts *fonts, Menu *menu) {
   SDL_Surface* surfaceMessage =
   TTF_RenderText_Solid(fonts->large, menu->title, White);
   SDL_Texture* Message = SDL_CreateTextureFromSurface(rend, surfaceMessage);
-  printf("-----3-----\n");
   SDL_FreeSurface(surfaceMessage);
 
-  // SDL_Texture* Message = SDL_CreateTextureFromSurface(rend, menus[0]);
-  rectangle.x = 100;
-  rectangle.y = 200;
-  rectangle.w = 200;
-  rectangle.h = 200;
+  for(i=0; i<NUMOPTIONS; i++) {
+      rectangle[i].w = button_width;
+      rectangle[i].h = button_height;
+      rectangle[i].y = 600;
+      rectangle[i].x = ((WIDTH / NUMOPTIONS) * i) + (((WIDTH / NUMOPTIONS) - button_width) / 2);
 
+}
   Message_rect.x = 250;
   Message_rect.y = 20;
   Message_rect.w = surfaceMessage->w;
   Message_rect.h = surfaceMessage->h;
 
-  while (gameIsRunning) {
+  while (menuIsRunning) {
     SDL_Event event;
 
     // (1) Handle Input
@@ -39,18 +42,18 @@ int showmenu(SDL_Renderer* rend, Fonts *fonts, Menu *menu) {
     while (SDL_PollEvent(&event)) {
       // Handle each specific event
       if (event.type == SDL_QUIT) {
-        gameIsRunning = 0;
+        menuIsRunning = 0;
       }
       switch (event.type) {
         case SDL_QUIT:
-          gameIsRunning = 0;
-          break;
+          menuIsRunning = 0;
+          return -1;
         case SDL_MOUSEBUTTONDOWN:
           x = event.button.x;
           y = event.button.y;
-          for (int i = 0; i < NUMOPTIONS; i += 1) {
-            if (x >= rectangle.x && x <= rectangle.x + rectangle.w &&
-                y >= rectangle.y && y <= rectangle.y + rectangle.h) {
+          for (i = 0; i < NUMOPTIONS; i++) {
+            if (x >= rectangle[i].x && x <= rectangle[i].x + rectangle[i].w &&
+                y >= rectangle[i].y && y <= rectangle[i].y + rectangle[i].h) {
               //SDL_FreeSurface(menus[0]);
               //SDL_FreeSurface(menus[1]);
               return i;
@@ -67,7 +70,10 @@ int showmenu(SDL_Renderer* rend, Fonts *fonts, Menu *menu) {
 
     // Do our drawing
     SDL_SetRenderDrawColor(rend, 255, 255, 255, SDL_ALPHA_OPAQUE);
-    SDL_RenderDrawRect(rend, &rectangle);
+    for (i=0; i <NUMOPTIONS; i++) {
+        // SDL_RenderDrawRect(rend, &rectangle[i]);
+        SDL_RenderFillRect(rend, &rectangle[i]);
+    }
 
     // Add text
     SDL_RenderCopy(rend, Message, NULL, &Message_rect);
