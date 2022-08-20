@@ -63,6 +63,7 @@ int move_user(Player* user, Location locations[ROWS][COLS], int y, int x,
   int newy = user->y + y;
   int newx = user->x + x;
   int response = 1;
+  int result = 1;
   if ((newy < ROWS && newy >= 0 && y != 0) ||
       (newx < COLS && newx >= 0 && x != 0)) {
     new_location = locations[newy][newx];
@@ -74,7 +75,12 @@ int move_user(Player* user, Location locations[ROWS][COLS], int y, int x,
       response = discover_menu(new_location, rend, fonts);
     }
     if (response == 0) {
-      result_menu(user, new_location, rend, fonts);
+      result = fightmenu(rend, fonts, user);
+      if (result == 1){
+        result_menu(user, new_location, rend, fonts);
+      } else {
+        // add death logic
+      }
     }
     user->y = newy;
     user->x = newx;

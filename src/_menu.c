@@ -158,7 +158,7 @@ int result_menu(Player* user, Location new_location, SDL_Renderer* rend,
   return response;
 }
 
-int fightmenu(SDL_Renderer* rend, Fonts* fonts) {
+int fightmenu(SDL_Renderer* rend, Fonts* fonts, Player* user) {
   const int max_buttons = 10;
   const float cooldown_time = 60;
   const int NUMOPTIONS = 2;
@@ -172,11 +172,18 @@ int fightmenu(SDL_Renderer* rend, Fonts* fonts) {
   int x, y, i, response = 0;
   SDL_Rect rect[max_buttons];
   SDL_Rect Message_rects[max_buttons];
+  SDL_Rect Health_rects[2];
   SDL_Texture* Messages[max_buttons];
   SDL_Surface* surfMessages[max_buttons];
+  SDL_Texture* Healths[2] = {0};
+  SDL_Surface* surfHealths[2];
   SDL_Color Black = {0, 0, 0};
+  SDL_Color Red = {255, 0, 0};
   int back_color[3] = {144, 238, 144};
   int button_color[3] = {188, 158, 130};
+  int healths[2] = {0};
+  int enemy_health = 10;
+  char health_msg[5];
 
   // Create title
   surfMessages[0] =
@@ -202,7 +209,7 @@ int fightmenu(SDL_Renderer* rend, Fonts* fonts) {
     rect[i].x = ((WIDTH / NUMOPTIONS) * i) +
                 (((WIDTH / NUMOPTIONS) - button_width) / 2);
   }
-  cooldown.w = button_width * (cooldown_timer/ cooldown_time);
+  cooldown.w = button_width * (cooldown_timer / cooldown_time);
   cooldown.h = button_height / 8;
   cooldown.y = rect[0].y + rect[0].h - cooldown.h;
   cooldown.x = ((WIDTH / NUMOPTIONS) - button_width) / 2;
@@ -225,6 +232,7 @@ int fightmenu(SDL_Renderer* rend, Fonts* fonts) {
   }
 
   while (menuIsRunning) {
+    // Return 0 if the user died and 1 if the user killed
     SDL_Event event;
 
     // (1) Handle Input
@@ -241,6 +249,11 @@ int fightmenu(SDL_Renderer* rend, Fonts* fonts) {
             case SDL_SCANCODE_SPACE:
               if (cooldown_timer == 0) {
                 cooldown_timer = cooldown_time;
+                enemy_health--;
+                if(enemy_health == 0){
+                  menuIsRunning = 0;
+                  response = 1;
+                }
               }
               break;
             default:
@@ -264,7 +277,7 @@ int fightmenu(SDL_Renderer* rend, Fonts* fonts) {
     if (cooldown_timer > 0) {
       cooldown_timer--;
     }
-    cooldown.w = button_width * (cooldown_timer/ cooldown_time);
+    cooldown.w = button_width * (cooldown_timer / cooldown_time);
 
     // (3) Clear and Draw the Screen
     // Gives us a clear "canvas"
@@ -282,6 +295,22 @@ int fightmenu(SDL_Renderer* rend, Fonts* fonts) {
     SDL_SetRenderDrawColor(rend, 0, 0, 0, SDL_ALPHA_OPAQUE);
     SDL_RenderFillRect(rend, &cooldown);
 
+    // Write health
+    healths[0] = user->health;
+    healths[1] = enemy_health;
+    for(i=0; i<2; i++) {
+      sprintf(health_msg, "%i", healths[i]);
+      surfHealths[i] = TTF_RenderText_Solid(fonts->large, health_msg, Red);
+      Healths[i] = SDL_CreateTextureFromSurface(rend, surfHealths[i]);
+      Health_rects[i].x = ((WIDTH / 2) * i) +
+                  (((WIDTH / 2) - surfHealths[i]->w) / 2);
+      Health_rects[i].y = 400;
+      Health_rects[i].w = surfHealths[i]->w;
+      Health_rects[i].h = surfHealths[i]->h;
+      SDL_FreeSurface(surfHealths[i]);
+      SDL_RenderCopy(rend, Healths[i], NULL, &Health_rects[i]);
+    }
+
     // Add text
     for (i = 0; i < NUMMESSAGES; i++) {
       if (Messages[i] != 0) {
@@ -297,6 +326,11 @@ int fightmenu(SDL_Renderer* rend, Fonts* fonts) {
   for (i = 0; i < NUMMESSAGES; i++) {
     if (Messages[i] != 0) {
       SDL_DestroyTexture(Messages[i]);
+    }
+  }
+  for (i = 0; i < 2; i++) {
+    if (Healths[i] != 0) {
+      SDL_DestroyTexture(Healths[i]);
     }
   }
   return response;

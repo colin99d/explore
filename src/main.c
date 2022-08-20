@@ -65,8 +65,6 @@ int main(int argc, char* argv[]) {
       destinations[i][j].y = i * OBJ_HEIGHT;
     }
   }
-  fightmenu(rend, &fonts);
-  gameIsRunning = 0;
 
   while (gameIsRunning) {
     SDL_Event event;
