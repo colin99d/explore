@@ -6,6 +6,49 @@
 #include "_helpers.h"
 int showmenu(SDL_Surface *screen, TTF_Font *font) {
   double time;
+  int x, y, i;
+  const int NUMMENU = 2;
+  const char *labels[NUMMENU] = {"Continue", "Exit"};
+  SDL_Surface *menus[NUMMENU] = {0};
+  int selected[NUMMENU] = {0};
+  SDL_Color color[2] = {{255,255,255},{255,0,0}};
+
+  menus[0] = TTF_RenderText_Solid(font, labels[0], color[0]);
+  menus[1] = TTF_RenderText_Solid(font, labels[1], color[0]);
+  SDL_Rect pos[NUMMENU];
+
+  pos[0].x = 20;
+  pos[0].y = 20;
+  pos[1].x = 20;
+  pos[1].y = 20;
+
+  SDL_Event event;
+
+  while(1) {
+    time = SDL_GetTicks();
+    while(SDL_PollEvent(&event)) {
+      switch(event.type) {
+        case SDL_QUIT:
+          for (i=0; i<NUMMENU; i++) {
+            SDL_FreeSurface(menus[i]);
+          }
+          return 1;
+        case SDL_MOUSEMOTION:
+          x = event.motion.x;
+          y = event.motion.y;
+          for (i=0; i<NUMMENU; i++) { 
+            if(x>=pos[i].x && x<=pos[i].x+pos[i].w && y>=pos[i].y && y<=pos[i].y+pos[i].h) {
+              if(!selected[i]) {
+                selected[i] = 1;
+                SDL_FreeSurface(menus[i]);
+                menu[i] = TTF_RenderText_Solid(font, menus[i], color[1]);
+              }
+            }
+          }
+      }
+    }
+
+  }
 
 
 }

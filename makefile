@@ -24,7 +24,7 @@ clean:
 .PHONY: build clean
 
 $(EXECUTABLE_FILES): $(OBJECT_FILES)
-		@$(CC) $(LDFLAGS) -o $@ $^ -I/opt/homebrew/opt/sdl2_ttf/include -L/opt/homebrew/opt/sdl2_ttf/lib -lSDL2 -lSDL2_image -lSDL2_ttf
+		@$(CC) $(LDFLAGS) -I/opt/homebrew/opt/sdl2_ttf/include -L/opt/homebrew/opt/sdl2_ttf/lib -o $@ $^ -lSDL2 -lSDL2_image -lSDL2_ttf
 		@# ^^^ http://www.gnu.org/software/make/manual/make.html#Automatic-Variables
 
 # http://www.gnu.org/software/make/manual/make.html#Static-Pattern

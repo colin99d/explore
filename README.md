@@ -13,4 +13,4 @@ To build from source:
 - cd into project
 - ./configure
 - make
--
+- make install
