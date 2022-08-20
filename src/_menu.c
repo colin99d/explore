@@ -1,38 +1,52 @@
+#include "_menu.h"
+
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_timer.h>
 
-#include "_menu.h"
 #include "main.h"
 
-
-int showmenu(SDL_Renderer* rend, Fonts *fonts, Menu *menu) {
-  int x, y, i;
+int showmenu(SDL_Renderer* rend, Fonts* fonts, Menu* menu) {
   const int NUMOPTIONS = 2;
+  const int NUMMESSAGES = 4;
   const int button_width = 200;
   const int button_height = 200;
-  SDL_Surface* options[NUMOPTIONS];
-  SDL_Rect rectangle[NUMOPTIONS];
   int menuIsRunning = 1;
-  SDL_Rect Message_rect;
-  SDL_Color White = {255, 255, 255};
+  int x, y, i;
+  SDL_Rect rectangle[NUMOPTIONS];
+  SDL_Rect Message_rects[NUMMESSAGES] = {0};
+  SDL_Texture* Messages[NUMMESSAGES] = {0};
+  SDL_Surface* surfMessages[NUMMESSAGES] = {0};
+  SDL_Color Black = {0, 0, 0};
 
   // Create title
-  SDL_Surface* surfaceMessage =
-  TTF_RenderText_Solid(fonts->large, menu->title, White);
-  SDL_Texture* Message = SDL_CreateTextureFromSurface(rend, surfaceMessage);
-  SDL_FreeSurface(surfaceMessage);
+  surfMessages[0] = TTF_RenderText_Solid(fonts->large, menu->title, Black);
+  Messages[0] = SDL_CreateTextureFromSurface(rend, surfMessages[0]);
 
-  for(i=0; i<NUMOPTIONS; i++) {
-      rectangle[i].w = button_width;
-      rectangle[i].h = button_height;
-      rectangle[i].y = 600;
-      rectangle[i].x = ((WIDTH / NUMOPTIONS) * i) + (((WIDTH / NUMOPTIONS) - button_width) / 2);
+  // Create message
+  surfMessages[1] = TTF_RenderText_Solid(fonts->medium, menu->message, Black);
+  Messages[1] = SDL_CreateTextureFromSurface(rend, surfMessages[1]);
 
-}
-  Message_rect.x = 250;
-  Message_rect.y = 20;
-  Message_rect.w = surfaceMessage->w;
-  Message_rect.h = surfaceMessage->h;
+  // Draw buttons for choices
+  for (i = 0; i < NUMOPTIONS; i++) {
+    rectangle[i].w = button_width;
+    rectangle[i].h = button_height;
+    rectangle[i].y = 600;
+    rectangle[i].x = ((WIDTH / NUMOPTIONS) * i) +
+                     (((WIDTH / NUMOPTIONS) - button_width) / 2);
+  }
+  // Generate messages
+  Message_rects[0].x = (WIDTH - surfMessages[0]->w) / 2;
+  Message_rects[0].y = 20;
+  Message_rects[1].x = (WIDTH - surfMessages[1]->w) / 2;
+  Message_rects[1].y = 200;
+  for (i = 0; i < NUMMESSAGES; i++) {
+    if (Messages[i] != 0) {
+      Message_rects[i].w = surfMessages[i]->w;
+      Message_rects[i].h = surfMessages[i]->h;
+      SDL_FreeSurface(surfMessages[i]);
+    }
+  }
+
 
   while (menuIsRunning) {
     SDL_Event event;
@@ -54,8 +68,8 @@ int showmenu(SDL_Renderer* rend, Fonts *fonts, Menu *menu) {
           for (i = 0; i < NUMOPTIONS; i++) {
             if (x >= rectangle[i].x && x <= rectangle[i].x + rectangle[i].w &&
                 y >= rectangle[i].y && y <= rectangle[i].y + rectangle[i].h) {
-              //SDL_FreeSurface(menus[0]);
-              //SDL_FreeSurface(menus[1]);
+              // SDL_FreeSurface(menus[0]);
+              // SDL_FreeSurface(menus[1]);
               return i;
             }
           }
@@ -65,18 +79,22 @@ int showmenu(SDL_Renderer* rend, Fonts *fonts, Menu *menu) {
 
     // (3) Clear and Draw the Screen
     // Gives us a clear "canvas"
-    SDL_SetRenderDrawColor(rend, 0, 0, 0, SDL_ALPHA_OPAQUE);
+    SDL_SetRenderDrawColor(rend, 144, 238, 144, SDL_ALPHA_OPAQUE);
     SDL_RenderClear(rend);
 
     // Do our drawing
-    SDL_SetRenderDrawColor(rend, 255, 255, 255, SDL_ALPHA_OPAQUE);
-    for (i=0; i <NUMOPTIONS; i++) {
-        // SDL_RenderDrawRect(rend, &rectangle[i]);
-        SDL_RenderFillRect(rend, &rectangle[i]);
+    SDL_SetRenderDrawColor(rend, 188, 158, 130, SDL_ALPHA_OPAQUE);
+    for (i = 0; i < NUMOPTIONS; i++) {
+      // SDL_RenderDrawRect(rend, &rectangle[i]);
+      SDL_RenderFillRect(rend, &rectangle[i]);
     }
 
     // Add text
-    SDL_RenderCopy(rend, Message, NULL, &Message_rect);
+    for (i = 0; i < NUMMESSAGES; i++) {
+      if (Messages[i] != 0) {
+        SDL_RenderCopy(rend, Messages[i], NULL, &Message_rects[i]);
+      }
+    }
 
     // Finally show what we've drawn
     SDL_RenderPresent(rend);
@@ -92,38 +110,6 @@ int showmenu(SDL_Renderer* rend, Fonts *fonts, Menu *menu) {
           SDL_FreeSurface(menus[0]);
           SDL_FreeSurface(menus[1]);
           return 1;
-        case SDL_MOUSEMOTION:
-          x = event.motion.x;
-          y = event.motion.y;
-          for (int i = 0; i < NUMOPTIONS; i += 1) {
-            if (x >= pos[i].x && x <= pos[i].x + pos[i].w && y >= pos[i].y &&
-                y <= pos[i].y + pos[i].h) {
-              if (!selected[i]) {
-                selected[i] = 1;
-                SDL_FreeSurface(menus[i]);
-                menus[i] = TTF_RenderText_Solid(font, labels[i], color[1]);
-              }
-            } else {
-              if (selected[i]) {
-                selected[i] = 0;
-                SDL_FreeSurface(menus[i]);
-                menus[i] = TTF_RenderText_Solid(font, labels[i], color[0]);
-              }
-            }
-          }
-          break;
-        case SDL_MOUSEBUTTONDOWN:
-          x = event.button.x;
-          y = event.button.y;
-          for (int i = 0; i < NUMOPTIONS; i += 1) {
-            if (x >= pos[i].x && x <= pos[i].x + pos[i].w && y >= pos[i].y &&
-                y <= pos[i].y + pos[i].h) {
-              SDL_FreeSurface(menus[0]);
-              SDL_FreeSurface(menus[1]);
-              return i;
-            }
-          }
-          break;
         case SDL_KEYDOWN:
           if (event.key.keysym.sym == SDLK_ESCAPE) {
             SDL_FreeSurface(menus[0]);
@@ -132,14 +118,12 @@ int showmenu(SDL_Renderer* rend, Fonts *fonts, Menu *menu) {
           }
       }
     }
-    for (int i = 0; i < NUMOPTIONS; i += 1) {
-      // SDL_BlitSurface(menus[i], NULL, rend, &pos[i]);
-    }
-    SDL_RenderPresent(rend);
-    if (1000 / 30 > (SDL_GetTicks() - time))
-      SDL_Delay(1000 / 30 - (SDL_GetTicks() - time));
   }
   */
-  SDL_DestroyTexture(Message);
+  for (i = 0; i < NUMMESSAGES; i++) {
+    if (Messages[i] != 0) {
+      SDL_DestroyTexture(Messages[i]);
+    }
+  }
   return 1;
 }
