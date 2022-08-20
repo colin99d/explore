@@ -5,22 +5,32 @@
 
 #include "_helpers.h"
 int showmenu(SDL_Renderer* rend, TTF_Font* font) {
-  double time;
   int x, y;
   const int NUMMENU = 2;
   const char* labels[NUMMENU] = {"Continue", "Exit"};
   SDL_Surface* menus[NUMMENU];
-  int selected[NUMMENU] = {0, 0};
-  SDL_Color color[2] = {{255, 255, 255}, {255, 0, 0}};
+  SDL_Color color[NUMMENU] = {{255, 255, 255}, {255, 0, 0}};
   SDL_Rect rectangle;
   int gameIsRunning = 1;
+  SDL_Rect Message_rect;
+  SDL_Color White = {255, 255, 255};
+  SDL_Surface* surfaceMessage =
+  TTF_RenderText_Solid(font, "put your text here", White); 
+  SDL_Texture* Message = SDL_CreateTextureFromSurface(rend, surfaceMessage);
+  SDL_FreeSurface(surfaceMessage);
 
   menus[0] = TTF_RenderText_Solid(font, labels[0], color[0]);
   menus[1] = TTF_RenderText_Solid(font, labels[1], color[0]);
-  rectangle.x = 20;
-  rectangle.y = 20;
+  // SDL_Texture* Message = SDL_CreateTextureFromSurface(rend, menus[0]);
+  rectangle.x = 100;
+  rectangle.y = 200;
   rectangle.w = 200;
   rectangle.h = 200;
+
+  Message_rect.x = 250;
+  Message_rect.y = 20;
+  Message_rect.w = surfaceMessage->w;
+  Message_rect.h = surfaceMessage->h;
 
   while (gameIsRunning) {
     SDL_Event event;
@@ -40,8 +50,8 @@ int showmenu(SDL_Renderer* rend, TTF_Font* font) {
           x = event.button.x;
           y = event.button.y;
           for (int i = 0; i < NUMMENU; i += 1) {
-            if (x >= rectangle.x && x <= rectangle.x + rectangle.w && y >= rectangle.y &&
-                y <= rectangle.y + rectangle.h) {
+            if (x >= rectangle.x && x <= rectangle.x + rectangle.w &&
+                y >= rectangle.y && y <= rectangle.y + rectangle.h) {
               SDL_FreeSurface(menus[0]);
               SDL_FreeSurface(menus[1]);
               return i;
@@ -58,9 +68,10 @@ int showmenu(SDL_Renderer* rend, TTF_Font* font) {
 
     // Do our drawing
     SDL_SetRenderDrawColor(rend, 255, 255, 255, SDL_ALPHA_OPAQUE);
-    SDL_RenderDrawLine(rend, 5, 5, 100, 120);
-
     SDL_RenderDrawRect(rend, &rectangle);
+
+    // Add text
+    SDL_RenderCopy(rend, Message, NULL, &Message_rect);
 
     // Finally show what we've drawn
     SDL_RenderPresent(rend);
@@ -124,11 +135,11 @@ int showmenu(SDL_Renderer* rend, TTF_Font* font) {
       SDL_Delay(1000 / 30 - (SDL_GetTicks() - time));
   }
   */
+  SDL_DestroyTexture(Message);
   return 1;
 }
 
 int main(int argc, char* argv[]) {
-  TTF_Font* font = TTF_OpenFont("Test.ttf", 30);
   SDL_Rect destinations[rows][cols] = {0};
   Player user;
   int positions[rows][cols] = {0};
@@ -142,6 +153,14 @@ int main(int argc, char* argv[]) {
   // returns zero on success else non-zero
   if (SDL_Init(SDL_INIT_EVERYTHING) != 0) {
     printf("error initializing SDL: %s\n", SDL_GetError());
+  }
+
+  if (TTF_Init() != 0) {
+    printf("error initializing TTF: %s\n", TTF_GetError()); 
+  }
+  TTF_Font* font = TTF_OpenFont("images/bodoni-roman.ttf", 80);
+  if (font == 0) {
+    printf("error opening font: %s\n", TTF_GetError());
   }
   SDL_Window* win = SDL_CreateWindow("GAME",  // creates a window
                                      SDL_WINDOWPOS_CENTERED,
