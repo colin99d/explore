@@ -51,9 +51,11 @@ int showmenu(SDL_Renderer* rend, Fonts* fonts, Menu* menu) {
   Message_rects[0].y = 20;
   Message_rects[1].x = (WIDTH - surfMessages[1]->w) / 2;
   Message_rects[1].y = 200;
-  for(i = 0; i < NUMOPTIONS; i++) {
-    Message_rects[i + 2].x = rect[i].x + ((rect[i].w - surfMessages[i + 2]->w) / 2);
-    Message_rects[i + 2].y = rect[i].y + ((rect[i].h - surfMessages[i + 2]->h) / 2);
+  for (i = 0; i < NUMOPTIONS; i++) {
+    Message_rects[i + 2].x =
+        rect[i].x + ((rect[i].w - surfMessages[i + 2]->w) / 2);
+    Message_rects[i + 2].y =
+        rect[i].y + ((rect[i].h - surfMessages[i + 2]->h) / 2);
   }
 
   for (i = 0; i < NUMMESSAGES; i++) {
@@ -137,6 +139,18 @@ int discover_menu(Location new_location, SDL_Renderer* rend, Fonts* fonts) {
   }
   menu.buttons[0] = "Enter";
   menu.buttons[1] = "Flee";
+  menu.button_count = 2;
+  response = showmenu(rend, fonts, &menu);
+  return response;
+}
+
+int main_menu(SDL_Renderer* rend, Fonts* fonts) {
+  int response;
+  Menu menu;
+  strcpy(menu.title, "Explore");
+  strcpy(menu.message, "Explore your surroundings.");
+  menu.buttons[0] = "New Game";
+  menu.buttons[1] = "Exit";
   menu.button_count = 2;
   response = showmenu(rend, fonts, &menu);
   return response;

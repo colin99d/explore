@@ -15,20 +15,29 @@ TTF_Font* load_font(char* path, int size) {
   return value;
 }
 
+void start_game(int positions[ROWS][COLS], Player *user) {
+  int i, j;
+  for (i = 0; i < ROWS; i++) {
+    for (j = 0; j < COLS; j++) {
+      positions[i][j] = 0;
+    }
+  }
+  positions[0][0] = 1;
+  create_user(user);
+}
+
+
 int main(int argc, char* argv[]) {
   SDL_Rect destinations[ROWS][COLS] = {0};
   int positions[ROWS][COLS] = {0};
   int gameIsRunning = 1;
+  int i, j, response;
   GameStatus status;
   Location position;
   Textures textures;
   Fonts fonts;
   Player user;
-  int i, j;
 
-  positions[0][0] = 1;
-
-  create_user(&user);
   if (SDL_Init(SDL_INIT_EVERYTHING) != 0) {
     printf("error initializing SDL: %s\n", SDL_GetError());
   }
@@ -62,6 +71,13 @@ int main(int argc, char* argv[]) {
     }
   }
 
+  response = main_menu(rend, &fonts);
+  if (response == 0) {
+    start_game(positions, &user);
+  } else {
+    exit(1);
+  }
+
   while (gameIsRunning) {
     SDL_Event event;
 
@@ -78,6 +94,12 @@ int main(int argc, char* argv[]) {
             gameIsRunning = 0;
           } else if (status == GAMEOVER) {
             death_menu(rend, &fonts);
+            response = main_menu(rend, &fonts);
+            if (response == 0) {
+              start_game(positions, &user);
+            } else {
+              exit(1);
+            }
           }
           break;
       }
