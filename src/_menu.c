@@ -460,6 +460,14 @@ int market_menu(SDL_Renderer* rend, Fonts* fonts, Player * user) {
             }
           }
           break;
+        case SDL_KEYDOWN:
+          switch (event.key.keysym.scancode) {
+            case SDL_SCANCODE_M:
+              menuIsRunning = 0;
+              break;
+            default:
+              break;
+          }
       }
     }
     // (2) Handle Updates
