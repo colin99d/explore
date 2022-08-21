@@ -296,8 +296,8 @@ int fightmenu(SDL_Renderer* rend, Fonts* fonts, Player* user) {
         case SDL_MOUSEBUTTONDOWN:
           x = event.button.x;
           y = event.button.y;
-          if (x >= rect[1].x && x <= rect[1].x + rect[1].w &&
-              y >= rect[1].y && y <= rect[1].y + rect[1].h) {
+          if (x >= rect[1].x && x <= rect[1].x + rect[1].w && y >= rect[1].y &&
+              y <= rect[1].y + rect[1].h) {
             response = 2;
             menuIsRunning = 0;
           }
@@ -376,10 +376,11 @@ int fightmenu(SDL_Renderer* rend, Fonts* fonts, Player* user) {
   return response;
 }
 
-int market_menu(SDL_Renderer* rend, Fonts* fonts, Player * user) {
+int market_menu(SDL_Renderer* rend, Fonts* fonts, Player* user) {
   const int max_buttons = 10;
   const int NUMOPTIONS = 3;
-  const int NUMMESSAGES = 2 + NUMOPTIONS;
+  const int NONINTMESSAGES = 3;
+  const int NUMMESSAGES = NONINTMESSAGES + NUMOPTIONS;
   const int button_width = 200;
   const int button_height = 200;
   int menuIsRunning = 1;
@@ -388,24 +389,31 @@ int market_menu(SDL_Renderer* rend, Fonts* fonts, Player * user) {
   SDL_Rect Message_rects[max_buttons];
   SDL_Texture* Messages[max_buttons];
   SDL_Surface* surfMessages[max_buttons];
+  SDL_Rect Gold_rects[NUMOPTIONS];
+  SDL_Surface* surfGolds[NUMOPTIONS];
+  SDL_Texture* Golds[2] = {0};
   char buttons[3][10] = {"Sword", "Armour", "Food"};
   SDL_Color Black = {0, 0, 0};
+  SDL_Color Red = {255, 0, 0};
   int back_color[3] = {144, 238, 144};
   int button_color[3] = {188, 158, 130};
+  char gold_msg[10];
 
   // Create title
   surfMessages[0] = TTF_RenderText_Solid(fonts->large, "Market", Black);
   Messages[0] = SDL_CreateTextureFromSurface(rend, surfMessages[0]);
 
   // Create message
-  surfMessages[1] = TTF_RenderText_Solid(fonts->medium, "Buy items for your journey", Black);
+  surfMessages[1] =
+      TTF_RenderText_Solid(fonts->medium, "Buy items for your journey", Black);
   Messages[1] = SDL_CreateTextureFromSurface(rend, surfMessages[1]);
 
   // Create button text
   for (i = 0; i < NUMOPTIONS; ++i) {
-    surfMessages[2 + i] =
+    surfMessages[NONINTMESSAGES + i] =
         TTF_RenderText_Solid(fonts->medium, buttons[i], Black);
-    Messages[2 + i] = SDL_CreateTextureFromSurface(rend, surfMessages[2 + i]);
+    Messages[NONINTMESSAGES + i] =
+        SDL_CreateTextureFromSurface(rend, surfMessages[NONINTMESSAGES + i]);
   }
 
   // Draw buttons for choices
@@ -423,10 +431,10 @@ int market_menu(SDL_Renderer* rend, Fonts* fonts, Player * user) {
   Message_rects[1].x = (WIDTH - surfMessages[1]->w) / 2;
   Message_rects[1].y = 200;
   for (i = 0; i < NUMOPTIONS; i++) {
-    Message_rects[i + 2].x =
-        rect[i].x + ((rect[i].w - surfMessages[i + 2]->w) / 2);
-    Message_rects[i + 2].y =
-        rect[i].y + ((rect[i].h - surfMessages[i + 2]->h) / 2);
+    Message_rects[i + NONINTMESSAGES].x =
+        rect[i].x + ((rect[i].w - surfMessages[i + NONINTMESSAGES]->w) / 2);
+    Message_rects[i + NONINTMESSAGES].y =
+        rect[i].y + ((rect[i].h - surfMessages[i + NONINTMESSAGES]->h) / 2);
   }
 
   for (i = 0; i < NUMMESSAGES; i++) {
@@ -485,6 +493,17 @@ int market_menu(SDL_Renderer* rend, Fonts* fonts, Player * user) {
     for (i = 0; i < NUMOPTIONS; i++) {
       SDL_RenderFillRect(rend, &rect[i]);
     }
+
+    // Write gold
+    sprintf(gold_msg, "Gold: %i", user->gold);
+    surfGolds[0] = TTF_RenderText_Solid(fonts->large, gold_msg, Red);
+    Golds[0] = SDL_CreateTextureFromSurface(rend, surfGolds[0]);
+    Gold_rects[0].x = (WIDTH - surfGolds[0]->w) / 2;
+    Gold_rects[0].y = 400;
+    Gold_rects[0].w = surfGolds[0]->w;
+    Gold_rects[0].h = surfGolds[0]->h;
+    SDL_FreeSurface(surfGolds[0]);
+    SDL_RenderCopy(rend, Golds[0], NULL, &Gold_rects[0]);
 
     // Add text
     for (i = 0; i < NUMMESSAGES; i++) {
