@@ -51,10 +51,10 @@ int showmenu(SDL_Renderer* rend, Fonts* fonts, Menu* menu) {
   Message_rects[0].y = 20;
   Message_rects[1].x = (WIDTH - surfMessages[1]->w) / 2;
   Message_rects[1].y = 200;
-  Message_rects[2].x = rect[0].x + ((rect[0].w - surfMessages[2]->w) / 2);
-  Message_rects[2].y = rect[0].y + ((rect[0].h - surfMessages[2]->h) / 2);
-  Message_rects[3].x = rect[1].x + ((rect[1].w - surfMessages[3]->w) / 2);
-  Message_rects[3].y = rect[1].y + ((rect[1].h - surfMessages[3]->h) / 2);
+  for(i = 0; i < NUMOPTIONS; i++) {
+    Message_rects[i + 2].x = rect[i].x + ((rect[i].w - surfMessages[i + 2]->w) / 2);
+    Message_rects[i + 2].y = rect[i].y + ((rect[i].h - surfMessages[i + 2]->h) / 2);
+  }
 
   for (i = 0; i < NUMMESSAGES; i++) {
     if (Messages[i] != 0) {
@@ -142,6 +142,17 @@ int discover_menu(Location new_location, SDL_Renderer* rend, Fonts* fonts) {
   return response;
 }
 
+int death_menu(SDL_Renderer* rend, Fonts* fonts) {
+  Menu menu;
+  int response;
+  strcpy(menu.title, "You Died");
+  strcpy(menu.message, "Press continue to go back to the main menu.");
+  menu.buttons[0] = "Continue";
+  menu.button_count = 1;
+  response = showmenu(rend, fonts, &menu);
+  return response;
+}
+
 int result_menu(Player* user, Location new_location, SDL_Renderer* rend,
                 Fonts* fonts) {
   Menu menu;
@@ -157,10 +168,11 @@ int result_menu(Player* user, Location new_location, SDL_Renderer* rend,
   user->gold = user->gold + gold;
   return response;
 }
-
 int fightmenu(SDL_Renderer* rend, Fonts* fonts, Player* user) {
   const int max_buttons = 10;
   const float cooldown_time = 60;
+  const int enemy_cooldown = 120;
+  const int enemy_damage = 1;
   const int NUMOPTIONS = 2;
   const int NUMMESSAGES = 2 + 2;
   const int button_width = 200;
@@ -169,7 +181,7 @@ int fightmenu(SDL_Renderer* rend, Fonts* fonts, Player* user) {
   SDL_Rect cooldown;
   char* labels[] = {"Strike", "Flee"};
   int menuIsRunning = 1;
-  int x, y, i, response = 0;
+  int x, y, i, response, timer = 0;
   SDL_Rect rect[max_buttons];
   SDL_Rect Message_rects[max_buttons];
   SDL_Rect Health_rects[2];
@@ -250,7 +262,7 @@ int fightmenu(SDL_Renderer* rend, Fonts* fonts, Player* user) {
               if (cooldown_timer == 0) {
                 cooldown_timer = cooldown_time;
                 enemy_health--;
-                if(enemy_health == 0){
+                if (enemy_health == 0) {
                   menuIsRunning = 0;
                   response = 1;
                 }
@@ -279,6 +291,14 @@ int fightmenu(SDL_Renderer* rend, Fonts* fonts, Player* user) {
     }
     cooldown.w = button_width * (cooldown_timer / cooldown_time);
 
+    if (timer > 0 && timer % enemy_cooldown == 0) {
+      user->health = user->health - enemy_damage;
+      if (user->health == 0) {
+        menuIsRunning = 0;
+        response = 0;
+      }
+    }
+
     // (3) Clear and Draw the Screen
     // Gives us a clear "canvas"
     SDL_SetRenderDrawColor(rend, back_color[0], back_color[1], back_color[2],
@@ -298,12 +318,12 @@ int fightmenu(SDL_Renderer* rend, Fonts* fonts, Player* user) {
     // Write health
     healths[0] = user->health;
     healths[1] = enemy_health;
-    for(i=0; i<2; i++) {
+    for (i = 0; i < 2; i++) {
       sprintf(health_msg, "%i", healths[i]);
       surfHealths[i] = TTF_RenderText_Solid(fonts->large, health_msg, Red);
       Healths[i] = SDL_CreateTextureFromSurface(rend, surfHealths[i]);
-      Health_rects[i].x = ((WIDTH / 2) * i) +
-                  (((WIDTH / 2) - surfHealths[i]->w) / 2);
+      Health_rects[i].x =
+          ((WIDTH / 2) * i) + (((WIDTH / 2) - surfHealths[i]->w) / 2);
       Health_rects[i].y = 400;
       Health_rects[i].w = surfHealths[i]->w;
       Health_rects[i].h = surfHealths[i]->h;
@@ -319,6 +339,7 @@ int fightmenu(SDL_Renderer* rend, Fonts* fonts, Player* user) {
     }
 
     // Finally show what we've drawn
+    timer++;
     SDL_RenderPresent(rend);
     SDL_Delay(1000 / 60);
   }

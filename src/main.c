@@ -19,6 +19,7 @@ int main(int argc, char* argv[]) {
   SDL_Rect destinations[ROWS][COLS] = {0};
   int positions[ROWS][COLS] = {0};
   int gameIsRunning = 1;
+  GameStatus status;
   Location position;
   Textures textures;
   Fonts fonts;
@@ -47,14 +48,9 @@ int main(int argc, char* argv[]) {
   }
   */
 
-  // triggers the program that controls
-  // your graphics hardware and sets flags
   Uint32 render_flags = SDL_RENDERER_ACCELERATED;
-
-  // creates a renderer to render our images
   SDL_Renderer* rend = SDL_CreateRenderer(win, -1, render_flags);
   load_textures(&textures, rend);
-
   // creates a surface to load an image into the main memory
 
   for (i = 0; i < ROWS; i++) {
@@ -77,8 +73,11 @@ int main(int argc, char* argv[]) {
           gameIsRunning = 0;
           break;
         case SDL_KEYDOWN:
-          if (handle_input(&event, &user, positions, rend, &fonts) == -1) {
+          status = handle_input(&event, &user, positions, rend, &fonts);
+          if (status == EXIT) {
             gameIsRunning = 0;
+          } else if (status == GAMEOVER) {
+            death_menu(rend, &fonts);
           }
           break;
       }

@@ -57,12 +57,12 @@ void load_textures(Textures* textures, SDL_Renderer* rend) {
   SDL_FreeSurface(castle_active);
 }
 
-int move_user(Player* user, Location locations[ROWS][COLS], int y, int x,
+GameStatus move_user(Player* user, Location locations[ROWS][COLS], int y, int x,
               SDL_Renderer* rend, Fonts* fonts) {
   Location new_location;
   int newy = user->y + y;
   int newx = user->x + x;
-  int response = 1;
+  GameStatus response = CONTINUE;
   int result = 1;
   if ((newy < ROWS && newy >= 0 && y != 0) ||
       (newx < COLS && newx >= 0 && x != 0)) {
@@ -73,13 +73,13 @@ int move_user(Player* user, Location locations[ROWS][COLS], int y, int x,
     }
     if (new_location == HOME || new_location == CASTLE) {
       response = discover_menu(new_location, rend, fonts);
-    }
-    if (response == 0) {
-      result = fightmenu(rend, fonts, user);
-      if (result == 1){
-        result_menu(user, new_location, rend, fonts);
-      } else {
-        // add death logic
+      if (response == CONTINUE) {
+        result = fightmenu(rend, fonts, user);
+        if (result == 1){
+          result_menu(user, new_location, rend, fonts);
+        } else {
+          response = GAMEOVER;
+        }
       }
     }
     user->y = newy;
@@ -88,9 +88,9 @@ int move_user(Player* user, Location locations[ROWS][COLS], int y, int x,
   return response;
 }
 
-int handle_input(SDL_Event* event, Player* user, int positions[ROWS][COLS],
+GameStatus handle_input(SDL_Event* event, Player* user, int positions[ROWS][COLS],
                  SDL_Renderer* rend, Fonts* fonts) {
-  int response = 0;
+  GameStatus response = CONTINUE;
   switch (event->key.keysym.scancode) {
     case SDL_SCANCODE_W:
     case SDL_SCANCODE_UP:

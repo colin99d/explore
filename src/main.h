@@ -8,6 +8,13 @@
 #define COLS 20
 
 #pragma once
+typedef enum {
+  EXIT = -1,
+  CONTINUE = 0,
+  GAMEOVER = 1,
+} GameStatus;
+
+#pragma once
 typedef struct {
   int health;
   int gold;
