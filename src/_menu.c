@@ -6,6 +6,12 @@
 #include "_helpers.h"
 #include "main.h"
 
+typedef struct {
+  int cooldown;
+  int damage;
+  int health;
+} Enemy;
+
 int showmenu(SDL_Renderer* rend, Fonts* fonts, Menu* menu) {
   const int max_buttons = 10;
   const int NUMOPTIONS = menu->button_count;
@@ -184,9 +190,6 @@ int result_menu(Player* user, Location new_location, SDL_Renderer* rend,
 }
 int fightmenu(SDL_Renderer* rend, Fonts* fonts, Player* user) {
   const int max_buttons = 10;
-  const float cooldown_time = 60;
-  const int enemy_cooldown = 120;
-  const int enemy_damage = 1;
   const int NUMOPTIONS = 2;
   const int NUMMESSAGES = 2 + 2;
   const int button_width = 200;
@@ -208,8 +211,12 @@ int fightmenu(SDL_Renderer* rend, Fonts* fonts, Player* user) {
   int back_color[3] = {144, 238, 144};
   int button_color[3] = {188, 158, 130};
   int healths[2] = {0};
-  int enemy_health = 10;
   char health_msg[5];
+
+  Enemy enemy;
+  enemy.cooldown = 120;
+  enemy.damage = 1;
+  enemy.health = 10;
 
   // Create title
   surfMessages[0] =
@@ -235,7 +242,7 @@ int fightmenu(SDL_Renderer* rend, Fonts* fonts, Player* user) {
     rect[i].x = ((WIDTH / NUMOPTIONS) * i) +
                 (((WIDTH / NUMOPTIONS) - button_width) / 2);
   }
-  cooldown.w = button_width * (cooldown_timer / cooldown_time);
+  cooldown.w = button_width * (cooldown_timer / user->cooldown_time);
   cooldown.h = button_height / 8;
   cooldown.y = rect[0].y + rect[0].h - cooldown.h;
   cooldown.x = ((WIDTH / NUMOPTIONS) - button_width) / 2;
@@ -274,9 +281,9 @@ int fightmenu(SDL_Renderer* rend, Fonts* fonts, Player* user) {
           switch (event.key.keysym.scancode) {
             case SDL_SCANCODE_SPACE:
               if (cooldown_timer == 0) {
-                cooldown_timer = cooldown_time;
-                enemy_health--;
-                if (enemy_health == 0) {
+                cooldown_timer = user->cooldown_time;
+                enemy.health -= user->damage;
+                if (enemy.health == 0) {
                   menuIsRunning = 0;
                   response = 1;
                 }
@@ -301,10 +308,10 @@ int fightmenu(SDL_Renderer* rend, Fonts* fonts, Player* user) {
     if (cooldown_timer > 0) {
       cooldown_timer--;
     }
-    cooldown.w = button_width * (cooldown_timer / cooldown_time);
+    cooldown.w = button_width * (cooldown_timer / user->cooldown_time);
 
-    if (timer > 0 && timer % enemy_cooldown == 0) {
-      user->health = user->health - enemy_damage;
+    if (timer > 0 && timer % enemy.cooldown == 0) {
+      user->health = user->health - enemy.damage;
       if (user->health == 0) {
         menuIsRunning = 0;
         response = 0;
@@ -329,7 +336,7 @@ int fightmenu(SDL_Renderer* rend, Fonts* fonts, Player* user) {
 
     // Write health
     healths[0] = user->health;
-    healths[1] = enemy_health;
+    healths[1] = enemy.health;
     for (i = 0; i < 2; i++) {
       sprintf(health_msg, "%i", healths[i]);
       surfHealths[i] = TTF_RenderText_Solid(fonts->large, health_msg, Red);
@@ -369,10 +376,10 @@ int fightmenu(SDL_Renderer* rend, Fonts* fonts, Player* user) {
   return response;
 }
 
-int shop_menu(SDL_Renderer* rend, Fonts* fonts, Menu* menu) {
+int market_menu(SDL_Renderer* rend, Fonts* fonts, Player * user) {
   const int max_buttons = 10;
-  const int NUMOPTIONS = menu->button_count;
-  const int NUMMESSAGES = 2 + menu->button_count;
+  const int NUMOPTIONS = 3;
+  const int NUMMESSAGES = 2 + NUMOPTIONS;
   const int button_width = 200;
   const int button_height = 200;
   int menuIsRunning = 1;
@@ -381,22 +388,23 @@ int shop_menu(SDL_Renderer* rend, Fonts* fonts, Menu* menu) {
   SDL_Rect Message_rects[max_buttons];
   SDL_Texture* Messages[max_buttons];
   SDL_Surface* surfMessages[max_buttons];
+  char buttons[3][10] = {"Sword", "Armour", "Food"};
   SDL_Color Black = {0, 0, 0};
   int back_color[3] = {144, 238, 144};
   int button_color[3] = {188, 158, 130};
 
   // Create title
-  surfMessages[0] = TTF_RenderText_Solid(fonts->large, menu->title, Black);
+  surfMessages[0] = TTF_RenderText_Solid(fonts->large, "Market", Black);
   Messages[0] = SDL_CreateTextureFromSurface(rend, surfMessages[0]);
 
   // Create message
-  surfMessages[1] = TTF_RenderText_Solid(fonts->medium, menu->message, Black);
+  surfMessages[1] = TTF_RenderText_Solid(fonts->medium, "Buy items for your journey", Black);
   Messages[1] = SDL_CreateTextureFromSurface(rend, surfMessages[1]);
 
   // Create button text
   for (i = 0; i < NUMOPTIONS; ++i) {
     surfMessages[2 + i] =
-        TTF_RenderText_Solid(fonts->medium, menu->buttons[i], Black);
+        TTF_RenderText_Solid(fonts->medium, buttons[i], Black);
     Messages[2 + i] = SDL_CreateTextureFromSurface(rend, surfMessages[2 + i]);
   }
 

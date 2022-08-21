@@ -16,7 +16,10 @@ typedef enum {
 
 #pragma once
 typedef struct {
+  float cooldown_time;
   int health;
+  int max_health;
+  int damage;
   int gold;
   int x;
   int y;

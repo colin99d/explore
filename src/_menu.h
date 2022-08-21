@@ -24,3 +24,4 @@ int result_menu(Player *user, Location new_location, SDL_Renderer *rend,
 int fightmenu(SDL_Renderer* rend, Fonts* font, Player *users);
 int death_menu(SDL_Renderer* rend, Fonts* fonts);
 int main_menu(SDL_Renderer* rend, Fonts* fonts);
+int market_menu(SDL_Renderer* rend, Fonts* fonts, Player * user);

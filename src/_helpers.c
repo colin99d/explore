@@ -22,7 +22,10 @@ void create_user(Player* user) {
   user->x = 0;
   user->y = 0;
   user->health = 10;
+  user->max_health = 10;
+  user->damage = 1;
   user->gold = 0;
+  user->cooldown_time = 60;
 }
 
 int get_gold() { return rand() % 10; }
@@ -118,6 +121,12 @@ GameStatus handle_input(SDL_Event* event, Player* user, int positions[ROWS][COLS
     case SDL_SCANCODE_D:
     case SDL_SCANCODE_RIGHT:
       response = move_user(user, positions, 0, 1, rend, fonts);
+      break;
+    case SDL_SCANCODE_M:
+      response = market_menu(rend, fonts, user);
+      if(response != EXIT) {
+        response = CONTINUE;
+      }
       break;
     default:
       break;
