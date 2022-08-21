@@ -505,6 +505,20 @@ int market_menu(SDL_Renderer* rend, Fonts* fonts, Player* user) {
     SDL_FreeSurface(surfGolds[0]);
     SDL_RenderCopy(rend, Golds[0], NULL, &Gold_rects[0]);
 
+    // Write Prices
+    for (i = 0; i < NUMOPTIONS; i++) {
+      sprintf(gold_msg, "%i", 2);
+      surfGolds[1 + i] = TTF_RenderText_Solid(fonts->large, gold_msg, Black);
+      Golds[1 + i] = SDL_CreateTextureFromSurface(rend, surfGolds[1 + i]);
+      Gold_rects[1 + i].x =
+          ((WIDTH / 3) * i) + (((WIDTH / 3) - surfGolds[1 + i]->w) / 3);
+      Gold_rects[1 + i].y = 720;
+      Gold_rects[1 + i].w = surfGolds[1 + i]->w;
+      Gold_rects[1 + i].h = surfGolds[1 + i]->h;
+      SDL_FreeSurface(surfGolds[1 + i]);
+      SDL_RenderCopy(rend, Golds[1 + i], NULL, &Gold_rects[1 + i]);
+    }
+
     // Add text
     for (i = 0; i < NUMMESSAGES; i++) {
       if (Messages[i] != 0) {
