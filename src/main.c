@@ -15,7 +15,7 @@ TTF_Font* load_font(char* path, int size) {
   return value;
 }
 
-void start_game(int positions[ROWS][COLS], Player *user) {
+void start_game(int positions[ROWS][COLS], Player* user) {
   int i, j;
   for (i = 0; i < ROWS; i++) {
     for (j = 0; j < COLS; j++) {
@@ -25,7 +25,6 @@ void start_game(int positions[ROWS][COLS], Player *user) {
   positions[0][0] = 1;
   create_user(user);
 }
-
 
 int main(int argc, char* argv[]) {
   SDL_Rect destinations[ROWS][COLS] = {0};
@@ -85,7 +84,6 @@ int main(int argc, char* argv[]) {
     while (SDL_PollEvent(&event)) {
       switch (event.type) {
         case SDL_QUIT:
-          // handling of close button
           gameIsRunning = 0;
           break;
         case SDL_KEYDOWN:

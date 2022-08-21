@@ -289,12 +289,10 @@ int fightmenu(SDL_Renderer* rend, Fonts* fonts, Player* user) {
         case SDL_MOUSEBUTTONDOWN:
           x = event.button.x;
           y = event.button.y;
-          for (i = 0; i < NUMOPTIONS; i++) {
-            if (x >= rect[i].x && x <= rect[i].x + rect[i].w &&
-                y >= rect[i].y && y <= rect[i].y + rect[i].h) {
-              response = i;
-              menuIsRunning = 0;
-            }
+          if (x >= rect[1].x && x <= rect[1].x + rect[1].w &&
+              y >= rect[1].y && y <= rect[1].y + rect[1].h) {
+            response = 2;
+            menuIsRunning = 0;
           }
           break;
       }
@@ -366,6 +364,127 @@ int fightmenu(SDL_Renderer* rend, Fonts* fonts, Player* user) {
   for (i = 0; i < 2; i++) {
     if (Healths[i] != 0) {
       SDL_DestroyTexture(Healths[i]);
+    }
+  }
+  return response;
+}
+
+int shop_menu(SDL_Renderer* rend, Fonts* fonts, Menu* menu) {
+  const int max_buttons = 10;
+  const int NUMOPTIONS = menu->button_count;
+  const int NUMMESSAGES = 2 + menu->button_count;
+  const int button_width = 200;
+  const int button_height = 200;
+  int menuIsRunning = 1;
+  int x, y, i, response = 0;
+  SDL_Rect rect[max_buttons];
+  SDL_Rect Message_rects[max_buttons];
+  SDL_Texture* Messages[max_buttons];
+  SDL_Surface* surfMessages[max_buttons];
+  SDL_Color Black = {0, 0, 0};
+  int back_color[3] = {144, 238, 144};
+  int button_color[3] = {188, 158, 130};
+
+  // Create title
+  surfMessages[0] = TTF_RenderText_Solid(fonts->large, menu->title, Black);
+  Messages[0] = SDL_CreateTextureFromSurface(rend, surfMessages[0]);
+
+  // Create message
+  surfMessages[1] = TTF_RenderText_Solid(fonts->medium, menu->message, Black);
+  Messages[1] = SDL_CreateTextureFromSurface(rend, surfMessages[1]);
+
+  // Create button text
+  for (i = 0; i < NUMOPTIONS; ++i) {
+    surfMessages[2 + i] =
+        TTF_RenderText_Solid(fonts->medium, menu->buttons[i], Black);
+    Messages[2 + i] = SDL_CreateTextureFromSurface(rend, surfMessages[2 + i]);
+  }
+
+  // Draw buttons for choices
+  for (i = 0; i < NUMOPTIONS; i++) {
+    rect[i].w = button_width;
+    rect[i].h = button_height;
+    rect[i].y = 600;
+    rect[i].x = ((WIDTH / NUMOPTIONS) * i) +
+                (((WIDTH / NUMOPTIONS) - button_width) / 2);
+  }
+
+  // Generate messages
+  Message_rects[0].x = (WIDTH - surfMessages[0]->w) / 2;
+  Message_rects[0].y = 20;
+  Message_rects[1].x = (WIDTH - surfMessages[1]->w) / 2;
+  Message_rects[1].y = 200;
+  for (i = 0; i < NUMOPTIONS; i++) {
+    Message_rects[i + 2].x =
+        rect[i].x + ((rect[i].w - surfMessages[i + 2]->w) / 2);
+    Message_rects[i + 2].y =
+        rect[i].y + ((rect[i].h - surfMessages[i + 2]->h) / 2);
+  }
+
+  for (i = 0; i < NUMMESSAGES; i++) {
+    if (Messages[i] != 0) {
+      Message_rects[i].w = surfMessages[i]->w;
+      Message_rects[i].h = surfMessages[i]->h;
+      SDL_FreeSurface(surfMessages[i]);
+    }
+  }
+
+  while (menuIsRunning) {
+    SDL_Event event;
+
+    // (1) Handle Input
+    // Start our event loop
+    while (SDL_PollEvent(&event)) {
+      // Handle each specific event
+      switch (event.type) {
+        case SDL_QUIT:
+          menuIsRunning = 0;
+          response = -1;
+          break;
+        case SDL_MOUSEBUTTONDOWN:
+          x = event.button.x;
+          y = event.button.y;
+          for (i = 0; i < NUMOPTIONS; i++) {
+            if (x >= rect[i].x && x <= rect[i].x + rect[i].w &&
+                y >= rect[i].y && y <= rect[i].y + rect[i].h) {
+              response = i;
+              menuIsRunning = 0;
+            }
+          }
+          break;
+      }
+    }
+    // (2) Handle Updates
+
+    // (3) Clear and Draw the Screen
+    // Gives us a clear "canvas"
+    SDL_SetRenderDrawColor(rend, back_color[0], back_color[1], back_color[2],
+                           SDL_ALPHA_OPAQUE);
+    SDL_RenderClear(rend);
+
+    // Do our drawing
+    SDL_SetRenderDrawColor(rend, button_color[0], button_color[1],
+                           button_color[2], SDL_ALPHA_OPAQUE);
+
+    for (i = 0; i < NUMOPTIONS; i++) {
+      SDL_RenderFillRect(rend, &rect[i]);
+    }
+
+    // Add text
+    for (i = 0; i < NUMMESSAGES; i++) {
+      if (Messages[i] != 0) {
+        SDL_RenderCopy(rend, Messages[i], NULL, &Message_rects[i]);
+      }
+    }
+
+    // Finally show what we've drawn
+    SDL_RenderPresent(rend);
+    SDL_Delay(1000 / 60);
+  }
+
+  for (i = 0; i < NUMMESSAGES; i++) {
+    if (Messages[i] != 0) {
+      SDL_DestroyTexture(Messages[i]);
     }
   }
   return response;

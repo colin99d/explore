@@ -73,13 +73,24 @@ GameStatus move_user(Player* user, Location locations[ROWS][COLS], int y, int x,
     }
     if (new_location == HOME || new_location == CASTLE) {
       response = discover_menu(new_location, rend, fonts);
+      if (response == -1){
+        return -1;
+      }
       if (response == CONTINUE) {
         result = fightmenu(rend, fonts, user);
-        if (result == 1){
-          result_menu(user, new_location, rend, fonts);
-        } else {
+        if (result == -1) {
+          return -1;
+        } else if (result == 0){
           response = GAMEOVER;
+        } else if (result == 1) {
+          result_menu(user, new_location, rend, fonts);
+        } else if (result == 2){
+          // add fleeing logic
         }
+        // Currently fleeing returns a 1 for gameover, so we have to change
+        // it to a 0 (continue) at the end. this is janky
+      } else if (result == 1){
+        response = CONTINUE;
       }
     }
     user->y = newy;
