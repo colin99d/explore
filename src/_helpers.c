@@ -130,6 +130,12 @@ GameStatus handle_input(SDL_Event* event, Player* user,
         response = CONTINUE;
       }
       break;
+    case SDL_SCANCODE_E:
+      if (user->food > 0){
+        user->food--;
+        user->health = user->max_health;
+      }
+      break;
     default:
       break;
   }
