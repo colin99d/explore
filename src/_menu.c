@@ -283,7 +283,7 @@ int fightmenu(SDL_Renderer* rend, Fonts* fonts, Player* user) {
               if (cooldown_timer == 0) {
                 cooldown_timer = user->cooldown_time;
                 enemy.health -= user->damage;
-                if (enemy.health == 0) {
+                if (enemy.health <= 0) {
                   menuIsRunning = 0;
                   response = 1;
                 }
@@ -398,6 +398,7 @@ int market_menu(SDL_Renderer* rend, Fonts* fonts, Player* user) {
   int back_color[3] = {144, 238, 144};
   int button_color[3] = {188, 158, 130};
   char gold_msg[10];
+  int prices[NUMOPTIONS] = {2, 2, 2};
 
   // Create title
   surfMessages[0] = TTF_RenderText_Solid(fonts->large, "Market", Black);
@@ -463,8 +464,16 @@ int market_menu(SDL_Renderer* rend, Fonts* fonts, Player* user) {
           for (i = 0; i < NUMOPTIONS; i++) {
             if (x >= rect[i].x && x <= rect[i].x + rect[i].w &&
                 y >= rect[i].y && y <= rect[i].y + rect[i].h) {
-              response = i;
-              menuIsRunning = 0;
+              if (user->gold >= prices[i]) {
+                user->gold -= prices[i];
+                if(i == 0) {
+                  user->damage += 1;
+                } else if (i == 1) {
+                  user->max_health += 2;
+                } else if (i == 2) {
+                  user->food += 1;
+                }
+              }
             }
           }
           break;
@@ -507,7 +516,7 @@ int market_menu(SDL_Renderer* rend, Fonts* fonts, Player* user) {
 
     // Write Prices
     for (i = 0; i < NUMOPTIONS; i++) {
-      sprintf(gold_msg, "%i", 2);
+      sprintf(gold_msg, "%i", prices[i]);
       surfGolds[1 + i] = TTF_RenderText_Solid(fonts->large, gold_msg, Black);
       Golds[1 + i] = SDL_CreateTextureFromSurface(rend, surfGolds[1 + i]);
       Gold_rects[1 + i].x =

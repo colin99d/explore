@@ -26,6 +26,7 @@ void create_user(Player* user) {
   user->damage = 1;
   user->gold = 0;
   user->cooldown_time = 60;
+  user->food = 0;
 }
 
 int get_gold() { return rand() % 10; }
@@ -61,7 +62,7 @@ void load_textures(Textures* textures, SDL_Renderer* rend) {
 }
 
 GameStatus move_user(Player* user, Location locations[ROWS][COLS], int y, int x,
-              SDL_Renderer* rend, Fonts* fonts) {
+                     SDL_Renderer* rend, Fonts* fonts) {
   Location new_location;
   int newy = user->y + y;
   int newx = user->x + x;
@@ -76,23 +77,23 @@ GameStatus move_user(Player* user, Location locations[ROWS][COLS], int y, int x,
     }
     if (new_location == HOME || new_location == CASTLE) {
       response = discover_menu(new_location, rend, fonts);
-      if (response == -1){
+      if (response == -1) {
         return -1;
       }
       if (response == CONTINUE) {
         result = fightmenu(rend, fonts, user);
         if (result == -1) {
           return -1;
-        } else if (result == 0){
+        } else if (result == 0) {
           response = GAMEOVER;
         } else if (result == 1) {
-          result_menu(user, new_location, rend, fonts);
-        } else if (result == 2){
+          response = result_menu(user, new_location, rend, fonts);
+        } else if (result == 2) {
           // add fleeing logic
         }
         // Currently fleeing returns a 1 for gameover, so we have to change
         // it to a 0 (continue) at the end. this is janky
-      } else if (result == 1){
+      } else if (result == 1) {
         response = CONTINUE;
       }
     }
@@ -102,8 +103,9 @@ GameStatus move_user(Player* user, Location locations[ROWS][COLS], int y, int x,
   return response;
 }
 
-GameStatus handle_input(SDL_Event* event, Player* user, int positions[ROWS][COLS],
-                 SDL_Renderer* rend, Fonts* fonts) {
+GameStatus handle_input(SDL_Event* event, Player* user,
+                        int positions[ROWS][COLS], SDL_Renderer* rend,
+                        Fonts* fonts) {
   GameStatus response = CONTINUE;
   switch (event->key.keysym.scancode) {
     case SDL_SCANCODE_W:
@@ -124,7 +126,7 @@ GameStatus handle_input(SDL_Event* event, Player* user, int positions[ROWS][COLS
       break;
     case SDL_SCANCODE_M:
       response = market_menu(rend, fonts, user);
-      if(response != EXIT) {
+      if (response != EXIT) {
         response = CONTINUE;
       }
       break;
@@ -142,4 +144,27 @@ void destroy_textures(Textures* textures) {
   SDL_DestroyTexture(textures->home_active);
   SDL_DestroyTexture(textures->castle);
   SDL_DestroyTexture(textures->castle_active);
+}
+
+int min(int a, int b) { return (a > b) ? b : a; }
+int max(int a, int b) { return (a > b) ? a : b; }
+
+TTF_Font* load_font(char* path, int size) {
+  TTF_Font* value;
+  value = TTF_OpenFont(path, size);
+  if (value == 0) {
+    printf("error opening font: %s\n", TTF_GetError());
+  }
+  return value;
+}
+
+void start_game(int positions[ROWS][COLS], Player* user) {
+  int i, j;
+  for (i = 0; i < ROWS; i++) {
+    for (j = 0; j < COLS; j++) {
+      positions[i][j] = 0;
+    }
+  }
+  positions[0][0] = 1;
+  create_user(user);
 }

@@ -21,6 +21,7 @@ typedef struct {
   int max_health;
   int damage;
   int gold;
+  int food;
   int x;
   int y;
 } Player;
