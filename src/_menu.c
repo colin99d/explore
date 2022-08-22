@@ -545,5 +545,10 @@ int market_menu(SDL_Renderer* rend, Fonts* fonts, Player* user) {
       SDL_DestroyTexture(Messages[i]);
     }
   }
+  for (i = 0; i < NUMOPTIONS; i++) {
+    if (Golds[i] != 0) {
+      SDL_DestroyTexture(Golds[i]);
+    }
+  }
   return response;
 }

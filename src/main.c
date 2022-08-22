@@ -14,6 +14,7 @@ int main(int argc, char* argv[]) {
   int positions[ROWS][COLS] = {0};
   int gameIsRunning = 1;
   int i, j, response;
+  SDL_Rect info_box;
   GameStatus status;
   Location position;
   Textures textures;
@@ -41,8 +42,15 @@ int main(int argc, char* argv[]) {
 
   Uint32 render_flags = SDL_RENDERER_ACCELERATED;
   SDL_Renderer* rend = SDL_CreateRenderer(win, -1, render_flags);
+  if (SDL_SetRenderDrawBlendMode(rend, SDL_BLENDMODE_BLEND) != 0) {
+    printf("error initializing blend mode: %s\n", SDL_GetError());
+  }
   load_textures(&textures, rend);
   // creates a surface to load an image into the main memory
+  info_box.w = 100;
+  info_box.h = 100;
+  info_box.x = WIDTH - info_box.w;
+  info_box.y = 0;
 
   for (i = 0; i < ROWS; i++) {
     for (j = 0; j < COLS; j++) {
@@ -116,6 +124,11 @@ int main(int argc, char* argv[]) {
       SDL_RenderCopy(rend, textures.castle_active, NULL,
                      &destinations[user.y][user.x]);
     }
+
+    // create info box
+    SDL_SetRenderDrawColor(rend, 255, 255, 255, 130);
+    SDL_RenderFillRect(rend, &info_box);
+
     SDL_RenderPresent(rend);
     SDL_Delay(1000 / 60);
   }
