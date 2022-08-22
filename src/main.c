@@ -2,6 +2,7 @@
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_timer.h>
 #include <SDL2/SDL_ttf.h>
+#include <stdio.h>
 
 #include "_helpers.h"
 #include "_menu.h"
@@ -13,7 +14,15 @@ int main(int argc, char* argv[]) {
   SDL_Rect destinations[ROWS][COLS] = {0};
   int positions[ROWS][COLS] = {0};
   int gameIsRunning = 1;
+  const int NUMSTATS = 2;
+  int stats[NUMSTATS] = {0};
+  char info_labels[NUMSTATS][10] = {"Health", "Food"};
+  char stat_text[15];
   int i, j, response;
+  SDL_Rect Info_rects[NUMSTATS];
+  SDL_Texture* Infos[NUMSTATS];
+  SDL_Surface* surfInfos[NUMSTATS];
+  SDL_Color Black = {0, 0, 0};
   SDL_Rect info_box;
   GameStatus status;
   Location position;
@@ -47,7 +56,7 @@ int main(int argc, char* argv[]) {
   }
   load_textures(&textures, rend);
   // creates a surface to load an image into the main memory
-  info_box.w = 100;
+  info_box.w = 150;
   info_box.h = 100;
   info_box.x = WIDTH - info_box.w;
   info_box.y = 0;
@@ -128,6 +137,19 @@ int main(int argc, char* argv[]) {
     // create info box
     SDL_SetRenderDrawColor(rend, 255, 255, 255, 130);
     SDL_RenderFillRect(rend, &info_box);
+    stats[0] = user.health;
+    stats[1] = user.food;
+    for (i = 0; i < NUMSTATS; i++) {
+      sprintf(stat_text, "%s: %i", info_labels[i], stats[i]);
+      surfInfos[i] = TTF_RenderText_Solid(fonts.small, stat_text, Black);
+      Infos[+i] = SDL_CreateTextureFromSurface(rend, surfInfos[i]);
+      Info_rects[i].x = WIDTH - info_box.w;
+      Info_rects[i].y = 10 + (i * 30);
+      Info_rects[i].w = surfInfos[i]->w;
+      Info_rects[i].h = surfInfos[i]->h;
+      SDL_FreeSurface(surfInfos[i]);
+      SDL_RenderCopy(rend, Infos[i], NULL, &Info_rects[i]);
+    }
 
     SDL_RenderPresent(rend);
     SDL_Delay(1000 / 60);
