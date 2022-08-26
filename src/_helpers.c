@@ -32,31 +32,31 @@ void create_user(Player* user) {
 int get_gold() { return rand() % 10; }
 
 void load_textures(Textures* textures, SDL_Renderer* rend) {
-  SDL_Surface* grass = IMG_Load("images/grass.jpeg");
+  SDL_Surface* grass = IMG_Load("images/undiscovered.png");
   textures->grass = SDL_CreateTextureFromSurface(rend, grass);
   SDL_FreeSurface(grass);
 
-  SDL_Surface* cleared = IMG_Load("images/cleared.jpeg");
+  SDL_Surface* cleared = IMG_Load("images/discovered--.png");
   textures->cleared = SDL_CreateTextureFromSurface(rend, cleared);
   SDL_FreeSurface(cleared);
 
-  SDL_Surface* cleared_active = IMG_Load("images/cleared_active.jpeg");
+  SDL_Surface* cleared_active = IMG_Load("images/discovered--character.png");
   textures->cleared_active = SDL_CreateTextureFromSurface(rend, cleared_active);
   SDL_FreeSurface(cleared_active);
 
-  SDL_Surface* home = IMG_Load("images/home.jpeg");
+  SDL_Surface* home = IMG_Load("images/discovered-house-.png");
   textures->home = SDL_CreateTextureFromSurface(rend, home);
   SDL_FreeSurface(home);
 
-  SDL_Surface* home_active = IMG_Load("images/home_active.jpeg");
+  SDL_Surface* home_active = IMG_Load("images/discovered-house-character.png");
   textures->home_active = SDL_CreateTextureFromSurface(rend, home_active);
   SDL_FreeSurface(home_active);
 
-  SDL_Surface* castle = IMG_Load("images/castle.jpeg");
+  SDL_Surface* castle = IMG_Load("images/discovered-castle-.png");
   textures->castle = SDL_CreateTextureFromSurface(rend, castle);
   SDL_FreeSurface(castle);
 
-  SDL_Surface* castle_active = IMG_Load("images/castle_active.jpeg");
+  SDL_Surface* castle_active = IMG_Load("images/discovered-castle-character.png");
   textures->castle_active = SDL_CreateTextureFromSurface(rend, castle_active);
   SDL_FreeSurface(castle_active);
 }
