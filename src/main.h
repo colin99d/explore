@@ -37,11 +37,15 @@ typedef enum {
 } Location;
 
 typedef struct {
-  SDL_Texture* grass;
-  SDL_Texture* cleared;
-  SDL_Texture* cleared_active;
+  SDL_Texture* undiscovered;
+  SDL_Texture* discovered;
+  SDL_Texture* discovered_active;
   SDL_Texture* home;
   SDL_Texture* home_active;
+  SDL_Texture* cleared_home;
+  SDL_Texture* cleared_home_active;
   SDL_Texture* castle;
+  SDL_Texture* cleared_castle;
   SDL_Texture* castle_active;
+  SDL_Texture* cleared_castle_active;
 } Textures;

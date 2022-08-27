@@ -31,34 +31,32 @@ void create_user(Player* user) {
 
 int get_gold() { return rand() % 10; }
 
+SDL_Texture* get_texture(SDL_Renderer* rend, char* path) {
+  SDL_Texture* temp_text;
+  SDL_Surface* undiscovered = IMG_Load(path);
+  temp_text = SDL_CreateTextureFromSurface(rend, undiscovered);
+  SDL_FreeSurface(undiscovered);
+  return temp_text;
+}
+
 void load_textures(Textures* textures, SDL_Renderer* rend) {
-  SDL_Surface* grass = IMG_Load("images/undiscovered.png");
-  textures->grass = SDL_CreateTextureFromSurface(rend, grass);
-  SDL_FreeSurface(grass);
-
-  SDL_Surface* cleared = IMG_Load("images/discovered--.png");
-  textures->cleared = SDL_CreateTextureFromSurface(rend, cleared);
-  SDL_FreeSurface(cleared);
-
-  SDL_Surface* cleared_active = IMG_Load("images/discovered--character.png");
-  textures->cleared_active = SDL_CreateTextureFromSurface(rend, cleared_active);
-  SDL_FreeSurface(cleared_active);
-
-  SDL_Surface* home = IMG_Load("images/discovered-house-.png");
-  textures->home = SDL_CreateTextureFromSurface(rend, home);
-  SDL_FreeSurface(home);
-
-  SDL_Surface* home_active = IMG_Load("images/discovered-house-character.png");
-  textures->home_active = SDL_CreateTextureFromSurface(rend, home_active);
-  SDL_FreeSurface(home_active);
-
-  SDL_Surface* castle = IMG_Load("images/discovered-castle-.png");
-  textures->castle = SDL_CreateTextureFromSurface(rend, castle);
-  SDL_FreeSurface(castle);
-
-  SDL_Surface* castle_active = IMG_Load("images/discovered-castle-character.png");
-  textures->castle_active = SDL_CreateTextureFromSurface(rend, castle_active);
-  SDL_FreeSurface(castle_active);
+  textures->undiscovered = get_texture(rend, "images/undiscovered.png");
+  textures->discovered = get_texture(rend, "images/discovered--.png");
+  textures->discovered_active =
+      get_texture(rend, "images/discovered--character.png");
+  textures->home = get_texture(rend, "images/discovered-house-.png");
+  textures->home_active =
+      get_texture(rend, "images/discovered-house-character.png");
+  textures->cleared_home =
+      get_texture(rend, "images/cleared-house-.png");
+  textures->cleared_home_active =
+      get_texture(rend, "images/cleared-house-character.png");
+  textures->castle = get_texture(rend, "images/discovered-castle-.png");
+  textures->cleared_castle = get_texture(rend, "images/cleared-castle-.png");
+  textures->castle_active =
+      get_texture(rend, "images/discovered-castle-character.png");
+  textures->cleared_castle_active =
+      get_texture(rend, "images/cleared-castle-character.png");
 }
 
 GameStatus move_user(Player* user, Location locations[ROWS][COLS], int y, int x,
@@ -88,6 +86,8 @@ GameStatus move_user(Player* user, Location locations[ROWS][COLS], int y, int x,
           response = GAMEOVER;
         } else if (result == 1) {
           response = result_menu(user, new_location, rend, fonts);
+          // Mark the location as cleared
+          locations[newy][newx] *= -1;
         } else if (result == 2) {
           // add fleeing logic
         }
@@ -131,7 +131,7 @@ GameStatus handle_input(SDL_Event* event, Player* user,
       }
       break;
     case SDL_SCANCODE_E:
-      if (user->food > 0){
+      if (user->food > 0) {
         user->food--;
         user->health = user->max_health;
       }
@@ -143,13 +143,17 @@ GameStatus handle_input(SDL_Event* event, Player* user,
 }
 
 void destroy_textures(Textures* textures) {
-  SDL_DestroyTexture(textures->grass);
-  SDL_DestroyTexture(textures->cleared);
-  SDL_DestroyTexture(textures->cleared_active);
+  SDL_DestroyTexture(textures->undiscovered);
+  SDL_DestroyTexture(textures->discovered);
+  SDL_DestroyTexture(textures->discovered_active);
   SDL_DestroyTexture(textures->home);
+  SDL_DestroyTexture(textures->cleared_home);
   SDL_DestroyTexture(textures->home_active);
+  SDL_DestroyTexture(textures->cleared_home_active);
   SDL_DestroyTexture(textures->castle);
+  SDL_DestroyTexture(textures->cleared_castle);
   SDL_DestroyTexture(textures->castle_active);
+  SDL_DestroyTexture(textures->cleared_castle_active);
 }
 
 int min(int a, int b) { return (a > b) ? b : a; }

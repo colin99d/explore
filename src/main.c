@@ -109,29 +109,56 @@ int main(int argc, char* argv[]) {
     // for multiple rendering
     for (i = 0; i < ROWS; i++) {
       for (j = 0; j < COLS; j++) {
-        position = positions[i][j];
-        if (position == UNKNOWN) {
-          SDL_RenderCopy(rend, textures.grass, NULL, &destinations[i][j]);
-        } else if (position == GRASS) {
-          SDL_RenderCopy(rend, textures.cleared, NULL, &destinations[i][j]);
-        } else if (position == HOME) {
-          SDL_RenderCopy(rend, textures.home, NULL, &destinations[i][j]);
-        } else if (position == CASTLE) {
-          SDL_RenderCopy(rend, textures.castle, NULL, &destinations[i][j]);
+        switch (positions[i][j]) {
+          case UNKNOWN:
+            SDL_RenderCopy(rend, textures.undiscovered, NULL,
+                           &destinations[i][j]);
+            break;
+          case GRASS:
+            SDL_RenderCopy(rend, textures.discovered, NULL,
+                           &destinations[i][j]);
+            break;
+          case HOME:
+            SDL_RenderCopy(rend, textures.home, NULL, &destinations[i][j]);
+            break;
+          case EXPLORED_HOME:
+            SDL_RenderCopy(rend, textures.cleared_home, NULL,
+                           &destinations[i][j]);
+            break;
+          case CASTLE:
+            SDL_RenderCopy(rend, textures.castle, NULL, &destinations[i][j]);
+            break;
+          case EXPLORED_CASTLE:
+            SDL_RenderCopy(rend, textures.cleared_castle, NULL, &destinations[i][j]);
+            break;
         }
       }
-    }
-    // draw current user position
-    position = positions[user.y][user.x];
-    if (position == GRASS) {
-      SDL_RenderCopy(rend, textures.cleared_active, NULL,
-                     &destinations[user.y][user.x]);
-    } else if (position == HOME) {
-      SDL_RenderCopy(rend, textures.home_active, NULL,
-                     &destinations[user.y][user.x]);
-    } else if (position == CASTLE) {
-      SDL_RenderCopy(rend, textures.castle_active, NULL,
-                     &destinations[user.y][user.x]);
+      // draw current user position
+      position = positions[user.y][user.x];
+      switch (position) {
+        case GRASS:
+          SDL_RenderCopy(rend, textures.discovered_active, NULL,
+                         &destinations[user.y][user.x]);
+          break;
+        case HOME:
+          SDL_RenderCopy(rend, textures.home_active, NULL,
+                         &destinations[user.y][user.x]);
+          break;
+        case EXPLORED_HOME:
+          SDL_RenderCopy(rend, textures.cleared_home_active, NULL,
+                         &destinations[user.y][user.x]);
+          break;
+        case CASTLE:
+          SDL_RenderCopy(rend, textures.castle_active, NULL,
+                         &destinations[user.y][user.x]);
+          break;
+        case EXPLORED_CASTLE:
+          SDL_RenderCopy(rend, textures.cleared_castle_active, NULL,
+                         &destinations[user.y][user.x]);
+          break;
+        default:
+          break;
+      }
     }
 
     // create info box
