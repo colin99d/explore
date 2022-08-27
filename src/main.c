@@ -4,9 +4,9 @@
 #include <SDL2/SDL_ttf.h>
 #include <stdio.h>
 
+#include "_fighting.h"
 #include "_helpers.h"
 #include "_menu.h"
-#include "_fighting.h"
 
 // WASD or arrow keys to move
 // m: market, e: eat
@@ -51,8 +51,11 @@ int main(int argc, char* argv[]) {
   }
   */
 
-  Uint32 render_flags = SDL_RENDERER_ACCELERATED;
+  Uint32 render_flags = SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC;
   SDL_Renderer* rend = SDL_CreateRenderer(win, -1, render_flags);
+  if (rend == 0) {
+    printf("Renderer could not be created! SDL Error: %s\n", SDL_GetError());
+  }
   if (SDL_SetRenderDrawBlendMode(rend, SDL_BLENDMODE_BLEND) != 0) {
     printf("error initializing blend mode: %s\n", SDL_GetError());
   }
@@ -72,8 +75,8 @@ int main(int argc, char* argv[]) {
     }
   }
 
-  fight(rend, &textures, &fonts);
-  exit(1);
+  // fight(rend, &textures, &fonts);
+  // exit(1);
   response = main_menu(rend, &fonts);
   if (response == 0) {
     start_game(positions, &user);
@@ -133,7 +136,8 @@ int main(int argc, char* argv[]) {
             SDL_RenderCopy(rend, textures.castle, NULL, &destinations[i][j]);
             break;
           case EXPLORED_CASTLE:
-            SDL_RenderCopy(rend, textures.cleared_castle, NULL, &destinations[i][j]);
+            SDL_RenderCopy(rend, textures.cleared_castle, NULL,
+                           &destinations[i][j]);
             break;
         }
       }
