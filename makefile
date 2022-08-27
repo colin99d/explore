@@ -10,7 +10,7 @@ BIN=bin
 OBJ=$(BIN)/obj
 
 # Files
-SOURCE_FILES= $(SRC)/main.c $(SRC)/_helpers.c $(SRC)/_menu.c
+SOURCE_FILES= $(SRC)/main.c $(SRC)/_helpers.c $(SRC)/_menu.c $(SRC)/_fighting.c
 EXECUTABLE_FILES = $(EXECUTABLE_NAME:%=$(BIN)/%)
 OBJECT_FILES     = $(SOURCE_FILES:%.c=$(OBJ)/%.o)
 #     http://www.gnu.org/software/make/manual/make.html#Substitution-Refs

@@ -6,6 +6,7 @@
 
 #include "_helpers.h"
 #include "_menu.h"
+#include "_fighting.h"
 
 // WASD or arrow keys to move
 // m: market, e: eat
@@ -70,6 +71,8 @@ int main(int argc, char* argv[]) {
     }
   }
 
+  fight(rend, &textures, &fonts);
+  exit(1);
   response = main_menu(rend, &fonts);
   if (response == 0) {
     start_game(positions, &user);

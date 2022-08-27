@@ -12,6 +12,16 @@ locations = ["", "house", "castle"]
 users = ["", "character"]
 
 
+def crop_image(
+    image: Image, left: float, upper: float, right: float, lower: float
+) -> Image:
+    "Crops a given image. Each number is the percentage you want to remove."
+    width, height = image.size
+    return image.crop(
+        (width * left, upper * height, (1 - right) * width, (1 - lower) * height)
+    )
+
+
 def load_image(ending: str) -> Image:
     if ending:
         return Image.open(resources / f"{ending}.png")
@@ -30,6 +40,10 @@ def create_image(background: str, location: str, user: str):
 if __name__ == "__main__":
     # First move over images that are not changed
     load_image("undiscovered").save(base_path / "undiscovered.png")
+    sword = load_image("sword")
+    crop_image(sword, 0.3, 0.65, 0.5, 0).save(base_path / "sword.png")
+    character = load_image("character")
+    crop_image(character, 0.15, 0, 0.35, 0).save(base_path / "character.png")
     # Now generate images
     for back in backgrounds:
         for loc in locations:

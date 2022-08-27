@@ -47,8 +47,7 @@ void load_textures(Textures* textures, SDL_Renderer* rend) {
   textures->home = get_texture(rend, "images/discovered-house-.png");
   textures->home_active =
       get_texture(rend, "images/discovered-house-character.png");
-  textures->cleared_home =
-      get_texture(rend, "images/cleared-house-.png");
+  textures->cleared_home = get_texture(rend, "images/cleared-house-.png");
   textures->cleared_home_active =
       get_texture(rend, "images/cleared-house-character.png");
   textures->castle = get_texture(rend, "images/discovered-castle-.png");
@@ -57,6 +56,8 @@ void load_textures(Textures* textures, SDL_Renderer* rend) {
       get_texture(rend, "images/discovered-castle-character.png");
   textures->cleared_castle_active =
       get_texture(rend, "images/cleared-castle-character.png");
+  textures->character = get_texture(rend, "images/character.png");
+  textures->sword = get_texture(rend, "images/sword.png");
 }
 
 GameStatus move_user(Player* user, Location locations[ROWS][COLS], int y, int x,
@@ -154,6 +155,8 @@ void destroy_textures(Textures* textures) {
   SDL_DestroyTexture(textures->cleared_castle);
   SDL_DestroyTexture(textures->castle_active);
   SDL_DestroyTexture(textures->cleared_castle_active);
+  SDL_DestroyTexture(textures->character);
+  SDL_DestroyTexture(textures->sword);
 }
 
 int min(int a, int b) { return (a > b) ? b : a; }

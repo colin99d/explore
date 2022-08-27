@@ -48,4 +48,6 @@ typedef struct {
   SDL_Texture* cleared_castle;
   SDL_Texture* castle_active;
   SDL_Texture* cleared_castle_active;
+  SDL_Texture* character;
+  SDL_Texture* sword;
 } Textures;
