@@ -10,6 +10,7 @@
 
 // WASD or arrow keys to move
 // m: market, e: eat
+// 144K
 
 int main(int argc, char* argv[]) {
   SDL_Rect destinations[ROWS][COLS] = {0};
