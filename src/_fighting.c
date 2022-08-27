@@ -32,8 +32,8 @@ int fight(SDL_Renderer* rend, Textures* textures, Fonts* fonts) {
 
   sword.x = 400;
   sword.y = 400;
-  sword.w = 20;
-  sword.h = 35;
+  sword.w = 100;
+  sword.h = 100;
 
   enemy.x = 300;
   enemy.y = 300;

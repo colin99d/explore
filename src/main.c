@@ -72,8 +72,8 @@ int main(int argc, char* argv[]) {
     }
   }
 
-  // fight(rend, &textures, &fonts);
-  // exit(1);
+  fight(rend, &textures, &fonts);
+  exit(1);
   response = main_menu(rend, &fonts);
   if (response == 0) {
     start_game(positions, &user);
